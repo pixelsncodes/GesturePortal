@@ -30,6 +30,18 @@ Cropped from the recording at approximately 3 seconds. The visible HUD reports t
 
 These are the supplied screenshots, copied without creative edits.
 
+## Workflow explainer
+
+![ComfyUI-style GesturePortal architecture with actual camera and portal previews](assets/workflow-explainer.png)
+
+[Full-resolution PNG](assets/workflow-explainer.png) · [Editable SVG](assets/workflow-explainer.svg)
+
+The diagram shows camera capture, MediaPipe tracking, L-gesture activation, the soft mask, full-scene reference editing, restoration, frame alignment and compositing. The bottom sequence shows the actual reveal opening, moving and closing.
+
+This is a diagram of the application architecture, not an importable ComfyUI node graph. Gesture detection and masking run in the Python viewer; only the image conversion branch runs in ComfyUI. The SVG was drawn directly for exact labels and wiring, rather than generated as artwork.
+
+Preview screenshots come from the supplied recording at different moments. MediaPipe landmarks and the illustrative mask were recomputed locally from the 1.8-second preview frame. They are explanatory overlays, not a recorded intermediate tensor. In alignment mode, the real application matches the source, gesture and styled result to the same captured moment. Whole-scene AI generation continues independently of whether the reveal is active.
+
 ## Promotional artwork
 
 ![GesturePortal promotional banner](assets/promo.jpg)
@@ -72,5 +84,6 @@ All three screens are AI-generated **design concepts**. They illustrate a possib
 | `demo-portal-low.png` | Supplied `Screenshot 2026-10-06 220514.png` |
 | `promo.png`, `mockup-*.png` | Built-in image generation using the second screenshot as reference |
 | `promo.jpg`, `mockup-*.jpg` | Smaller web exports of the generated PNG originals |
+| `workflow-explainer.png`, `.svg` | Directly drawn architecture diagram; actual recording previews at 0, 1.8, 3, 5 and 11 s; locally recomputed hand landmarks and mask |
 
 Exact artwork prompts are preserved in [artwork-prompts.json](artwork-prompts.json). Promotional image generation was separate from the application's entirely local inference workflow.

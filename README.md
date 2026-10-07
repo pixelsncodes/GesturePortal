@@ -31,18 +31,9 @@ The current application is an OpenCV viewer plus a separate Tk controls window. 
 
 ## How it works
 
-```mermaid
-flowchart LR
-    W[Webcam frame] --> H[MediaPipe hand tracking]
-    H --> M[Smoothed gesture mask]
-    W --> P[Resize and letterbox full scene]
-    P --> C[Local ComfyUI model]
-    C --> A[Restore styled scene]
-    W --> R[Match captured frame]
-    M --> R
-    A --> R
-    R --> V[Reveal styled pixels inside portal]
-```
+![GesturePortal workflow: camera input, hand tracking, gesture activation, full-scene AI styling and masking, with real demo previews](docs/assets/workflow-explainer.png)
+
+*ComfyUI-style architecture overview with actual video frames and recomputed landmark/mask overlays. Gesture tracking and compositing run in the Python viewer; the styling branch runs in ComfyUI. [Download PNG](docs/assets/workflow-explainer.png) · [Editable SVG](docs/assets/workflow-explainer.svg)*
 
 The viewer keeps one AI request running and one newest frame waiting. Older waiting frames are replaced, and obsolete results are discarded when settings or models change. A separate controls process keeps sliders and dropdowns responsive during generation.
 
