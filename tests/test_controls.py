@@ -11,11 +11,11 @@ class LiveControlTests(unittest.TestCase):
 
     def test_subject_selection_does_not_accumulate_gender_instructions(self):
         selected = apply_settings(self.config, dict(self.settings, subject='male'))
-        self.assertIn('adult man', make_workflow(selected,'a'*32)['23']['inputs']['text'])
+        self.assertIn('masculine character presentation', make_workflow(selected,'a'*32)['23']['inputs']['text'])
         selected = apply_settings(selected, dict(self.settings, subject='female'))
         prompt = make_workflow(selected,'a'*32)['23']['inputs']['text']
-        self.assertIn('adult woman', prompt)
-        self.assertNotIn('adult man', prompt)
+        self.assertIn('feminine character presentation', prompt)
+        self.assertNotIn('masculine character presentation', prompt)
         selected = apply_settings(selected, dict(self.settings, subject='neutral'))
         self.assertEqual(make_workflow(selected,'a'*32)['23']['inputs']['text'],self.config['edit_prompt'])
 

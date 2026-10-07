@@ -4,7 +4,7 @@ import multiprocessing
 import queue
 import time
 from pathlib import Path
-from .styles import ANIME_PROMPT, STYLES, infer_style
+from .styles import ANIME_PROMPT, STYLES, infer_style, upgrade_style
 
 
 MODEL_LABELS = ('1 - Portrait v2 (tuned)', '2 - FLUX.2 Klein 4B', '3 - Qwen 2.1 Turbo')
@@ -14,7 +14,7 @@ DEFAULT_PROMPT = ANIME_PROMPT
 
 
 def normalized_settings(values, changed=None):
-    result = dict(values)
+    result = upgrade_style(values)
     result.setdefault('style_preset', infer_style(result.get('edit_prompt', '')))
     if result['style_preset'] not in (*STYLES, 'custom'):
         raise ValueError('Select a valid style preset or Custom instruction.')

@@ -1,8 +1,18 @@
 """Local reference-editing presets. No extra model downloads are required."""
-ANIME_PROMPT = 'Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style.'
+import json
+from pathlib import Path
+
+APPEARANCE = (' Match whoever is visible in this current camera image, including their current age, '
+              'skin tone, facial features, hairstyle, expression and clothing. Keep only accessories '
+              'visibly present in this input; do not introduce new accessories or copy appearance '
+              'from a different person or an earlier frame.')
+ANIME_PROMPT = ('Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, '
+                'simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. '
+                'Preserve natural eye size, body pose, hand positions and the exact room composition and framing. '
+                'Change only the drawing style.' + APPEARANCE)
 PRESERVE = (' Preserve the source camera angle, framing, room layout, positions of objects, '
-            'the person\'s identity, hairstyle, glasses if present, expression, body pose and hand gestures. '
-            'Apply the requested visual language consistently to the entire scene. Do not add text or a watermark.')
+            'body pose and hand gestures. Apply the requested visual language consistently to the entire scene. '
+            'Do not add text or a watermark.' + APPEARANCE)
 
 STYLES = {
     'anime': ('Anime film', ANIME_PROMPT, 'Ink outlines, flat colors and two-tone cel shading.'),
@@ -24,8 +34,10 @@ STYLES = {
         'in the same head orientation as the source. Use a faint translucent blue silhouette around the skull and subtly '
         'visible neck and hand bones. Use cool cyan rim lighting and a dark subdued version of the original room. '
         'Make the skull sculptural and non-graphic, with no blood, injury or exposed tissue. '
-        'This is an imagined stylized anatomy illustration, not a medical scan. Preserve the camera framing, head pose, '
-        'body pose, hand gestures and arrangement of the scene. Do not add labels or a watermark.',
+        'This is an imagined stylized anatomy illustration, not a medical scan. Follow the current camera subject\'s '
+        'head proportions and pose rather than a predefined adult character. Preserve camera framing, body pose, '
+        'hand gestures and arrangement of the scene. Keep clothing and only accessories visible in the current '
+        'input; do not introduce new accessories. Do not add labels or a watermark.',
         'Fictional 3D skull effect; the camera cannot see real bones.'),
     'paper': ('Layered paper cutout',
         'Rebuild this entire scene as handcrafted layered colored paper art. Form the person and room from crisp '
@@ -56,16 +68,28 @@ STYLES = {
     'pixel': ('Retro pixel art',
         'Recreate the scene as carefully authored retro 16-bit pixel art with a consistent visible square-pixel grid, '
         'crisp stepped edges, a limited coordinated color palette, clustered pixel shading and selective dithering. '
-        'Keep recognizable facial features, hair, glasses, clothing and room objects. Avoid smoothing, blur, '
+        'Keep the current source facial features, hair, clothing and room objects. Avoid smoothing, blur, '
         'vector outlines, glossy 3D rendering and merely pixelating the original photograph.' + PRESERVE,
         'Crisp 16-bit pixel clusters, limited colors and selective dithering.'),
 }
 STYLE_LABELS = {value[0]: key for key, value in STYLES.items()}
 STYLE_LABELS['Custom instruction'] = 'custom'
+LEGACY_PROMPTS = json.loads(Path(__file__).with_name('legacy_style_prompts.json').read_text(encoding='utf-8'))
 
 
 def infer_style(prompt):
-    return next((key for key, value in STYLES.items() if value[1] == prompt), 'custom')
+    return next((key for key, value in STYLES.items()
+                 if value[1] == prompt or LEGACY_PROMPTS.get(key) == prompt), 'custom')
+
+
+def upgrade_style(values):
+    """Refresh exact old built-in instructions; keep user-written prompts intact."""
+    result = dict(values)
+    prompt = result.get('edit_prompt')
+    key = infer_style(prompt)
+    if key in STYLES and LEGACY_PROMPTS.get(key) == prompt:
+        result.update(style_preset=key, edit_prompt=STYLES[key][1])
+    return result
 
 
 def style_name(key):

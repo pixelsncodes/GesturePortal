@@ -107,7 +107,7 @@
         "21",
         0
       ],
-      "text": "Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style."
+      "text": "Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve natural eye size, body pose, hand positions and the exact room composition and framing. Change only the drawing style. Match whoever is visible in this current camera image, including their current age, skin tone, facial features, hairstyle, expression and clothing. Keep only accessories visibly present in this input; do not introduce new accessories or copy appearance from a different person or an earlier frame."
     }
   },
   "24": {

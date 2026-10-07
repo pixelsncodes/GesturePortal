@@ -1,12 +1,13 @@
 """Full-scene, image-conditioned editing. The gesture never enters this graph."""
 
 def edit_prompt(config):
-    prompt = config['edit_prompt']
+    from .styles import upgrade_style
+    prompt = upgrade_style(config)['edit_prompt']
     subject = config.get('subject', 'neutral')
     if subject == 'male':
-        prompt += ' Render the person as an adult man with masculine facial features.'
+        prompt += ' Use a masculine character presentation while preserving the current subject\'s age and camera appearance.'
     elif subject == 'female':
-        prompt += ' Render the person as an adult woman with feminine facial features.'
+        prompt += ' Use a feminine character presentation while preserving the current subject\'s age and camera appearance.'
     elif subject != 'neutral':
         raise ValueError(f'Unknown subject preference: {subject}')
     return prompt

@@ -4,8 +4,8 @@ from pathlib import Path
 
 from portal.controls import apply_settings, default_settings, normalized_settings
 from portal.progress import WorkflowProgress
-from portal.styles import STYLES, infer_style
-from portal.workflow import make_workflow
+from portal.styles import STYLES, LEGACY_PROMPTS, infer_style
+from portal.workflow import make_workflow, edit_prompt
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,6 +32,25 @@ class StyleTests(unittest.TestCase):
         self.assertEqual(normalized_settings(settings)['style_preset'], 'custom')
         with self.assertRaises(ValueError):
             normalized_settings(dict(settings, style_preset='missing'))
+
+    def test_old_built_in_prompts_upgrade_without_overwriting_custom_instructions(self):
+        for key, prompt in LEGACY_PROMPTS.items():
+            loaded = normalized_settings(dict(default_settings(self.config), edit_prompt=prompt))
+            self.assertEqual(loaded['style_preset'], key)
+            self.assertEqual(loaded['edit_prompt'], STYLES[key][1])
+            self.assertEqual(edit_prompt(dict(self.config, edit_prompt=prompt)), STYLES[key][1])
+        custom = 'Draw the current person in charcoal, wearing a red hat.'
+        self.assertEqual(normalized_settings(dict(default_settings(self.config), edit_prompt=custom))['edit_prompt'], custom)
+
+    def test_presets_do_not_request_specific_accessories_or_change_a_childs_age(self):
+        for _, prompt, _ in STYLES.values():
+            self.assertNotIn('glasses', prompt.lower())
+            self.assertIn('current', prompt)
+            self.assertIn('do not introduce new accessories', prompt)
+        for preference in ('male', 'female'):
+            prompt = edit_prompt(dict(self.config, subject=preference))
+            self.assertNotIn('as an adult', prompt)
+            self.assertIn("preserving the current subject's age", prompt)
 
 
 class ProgressTests(unittest.TestCase):
