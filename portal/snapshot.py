@@ -12,7 +12,7 @@ def save_pair(result, config, folder):
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     name = datetime.now().strftime('%Y%m%d-%H%M%S-%f')
-    for suffix, image in [('source', source), ('anime', styled), ('comparison', np.hstack([source, styled]))]:
+    for suffix, image in [('source', source), ('styled', styled), ('comparison', np.hstack([source, styled]))]:
         if not cv2.imwrite(str(folder / f'{name}-{suffix}.png'), image):
             raise OSError('Could not save the comparison snapshot.')
     metadata = {'preset': config.get('name', config.get('engine', 'diffusion')), 'config': config,

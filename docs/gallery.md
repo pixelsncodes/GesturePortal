@@ -1,5 +1,19 @@
 # Demo, screenshots and concepts
 
+## Current visual styles and measured loading
+
+![Nine local FLUX styles](assets/style-comparison.jpg)
+
+![Implemented style selector](assets/styles-ui.png)
+
+![Backend component progress](assets/component-loading-ui.png)
+
+The comparison uses the same unstylized camera frame from the beginning of the
+supplied recording, rendered through the local four-step FLUX editor. The two UI
+captures show the implemented app using that source and its generated doodle.
+These are real local-model outputs and app captures. They demonstrate a single
+frame per style rather than continuous video quality. [Style guide](styles.md).
+
 ## Implemented desktop and widget
 
 ![Updated desktop interface](assets/desktop-ui.png)
@@ -95,5 +109,7 @@ All three screens are AI-generated **design concepts**. They illustrate a possib
 | `promo.png`, `mockup-*.png` | Built-in image generation using the second screenshot as reference |
 | `promo.jpg`, `mockup-*.jpg` | Smaller web exports of the generated PNG originals |
 | `workflow-explainer.png`, `.svg` | Directly drawn architecture diagram; actual recording previews at 0, 1.8, 3, 5 and 11 s; locally recomputed hand landmarks and mask |
+| `style-comparison.jpg` | Nine actual local FLUX results from the same original camera frame at 0 s; 640 × 384 inference restored to 860 × 469, arranged into a comparison sheet |
+| `styles-ui.png`, `component-loading-ui.png` | Captures of the implemented GesturePortal window during the local style/progress acceptance test |
 
 Exact artwork prompts are preserved in [artwork-prompts.json](artwork-prompts.json). Promotional image generation was separate from the application's entirely local inference workflow.

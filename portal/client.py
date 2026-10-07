@@ -1,4 +1,5 @@
 import threading
+import json
 import time
 import uuid
 from urllib.parse import urlparse
@@ -6,9 +7,11 @@ from urllib.parse import urlparse
 import cv2
 import numpy as np
 import requests
+import websocket
 
 from .workflow import make_workflow
 from .compositor import prepare_full_frame, restore_full_frame
+from .progress import WorkflowProgress
 
 
 class ComfyClient:
@@ -22,6 +25,11 @@ class ComfyClient:
         self.session.trust_env = False
         self.client_id = uuid.uuid4().hex
         self.prompt_id = None
+        self.progress_callback = None
+
+    def report(self, **event):
+        if self.progress_callback:
+            self.progress_callback(event)
 
     def request(self, method, path, **kwargs):
         response = self.session.request(method, self.url + path, timeout=10, **kwargs)
@@ -30,12 +38,14 @@ class ComfyClient:
         return response
 
     def check(self, config=None):
+        self.report(percent=0, stage='Connecting local AI backend', detail='Checking the local model server')
         health = self.request("GET", "/gesture_portal/health").json()
         selected = self.config if config is None else config
         if health.get('version', 0) < 5:
             raise ValueError('Close the old ComfyUI backend, then launch again to load the new image editors.')
         if selected.get('engine') == 'portrait' and not health.get('portrait_quality'):
             raise ValueError('Close the old ComfyUI backend, then launch again to load the portrait quality controls.')
+        self.report(percent=2, stage='Checking model files and workflow', detail='Validating the model, text encoder, decoder and workflow nodes')
         info = self.request("GET", "/object_info").json()
         graph = make_workflow(selected, "0" * 32)
         for node in graph.values():
@@ -47,25 +57,72 @@ class ComfyClient:
                 schema = required.get(field)
                 if schema and isinstance(schema[0], list) and value not in schema[0]:
                     raise ValueError(f"{name}.{field}: {value!r} is unavailable in this ComfyUI installation.")
+        self.report(percent=5, stage='Workflow validated', detail='Preparing the full camera reference')
 
     def generate(self, frame, stopping, config=None):
+        selected = self.config if config is None else config
+        self.report(fraction=0, stage='Uploading full camera reference', detail='Encoding the local camera frame as PNG')
         frame_id = uuid.uuid4().hex
         ok, encoded = cv2.imencode(".png", frame)
         if not ok:
             raise RuntimeError("Could not encode camera frame.")
         self.request("POST", f"/gesture_portal/frame/{frame_id}", data=encoded.tobytes(),
                      headers={"Content-Type": "image/png"})
-        payload = {"prompt": make_workflow(self.config if config is None else config, frame_id), "client_id": self.client_id}
-        self.prompt_id = self.request("POST", "/prompt", json=payload).json()["prompt_id"]
+        graph = make_workflow(selected, frame_id)
+        payload = {"prompt": graph, "client_id": self.client_id}
+        channel = None
+        try:
+            channel = websocket.create_connection(self.url.replace('http://', 'ws://', 1) + '/ws?clientId=' + self.client_id,
+                                                   timeout=2, suppress_origin=True,
+                                                   http_no_proxy=['127.0.0.1', 'localhost', '::1'])
+            channel.settimeout(.01)
+        except (OSError, websocket.WebSocketException):
+            if channel:
+                channel.close()
+            channel = None
+            self.report(fraction=0, stage='Running the image workflow', detail='Detailed progress unavailable; waiting for backend completion')
+        try:
+            self.prompt_id = self.request("POST", "/prompt", json=payload).json()["prompt_id"]
+            return self.wait_result(frame_id, graph, selected, channel, stopping)
+        finally:
+            if channel:
+                channel.close()
+
+    def wait_result(self, frame_id, graph, selected, channel, stopping):
+        progress = WorkflowProgress(graph, selected, self.prompt_id)
         deadline = time.monotonic() + 180
+        last_poll = 0
         # Finish and clean up an already-running job even if the viewer is closing.
         while True:
+            if channel:
+                for _ in range(50):
+                    try:
+                        message = channel.recv()
+                        if not message:
+                            channel.close()
+                            channel = None
+                            break
+                        if isinstance(message, str):
+                            event = progress.consume(json.loads(message))
+                            if event:
+                                self.report(**event)
+                    except websocket.WebSocketTimeoutException:
+                        break
+                    except (OSError, websocket.WebSocketException, ValueError):
+                        channel.close()
+                        channel = None
+                        break
+            if time.monotonic() - last_poll < .1:
+                time.sleep(.01)
+                continue
+            last_poll = time.monotonic()
             history = self.request("GET", f"/history/{self.prompt_id}").json().get(self.prompt_id)
             if history:
                 try:
                     status = history.get("status", {})
                     if status.get("status_str") == "error":
                         raise RuntimeError(f"ComfyUI execution failed: {status.get('messages', [])}")
+                    self.report(fraction=1, stage='Receiving styled pixels', detail='Restoring the camera aspect ratio and reveal canvas')
                     data = self.request("GET", f"/gesture_portal/result/{frame_id}").content
                     image = cv2.imdecode(np.frombuffer(data, np.uint8), cv2.IMREAD_COLOR)
                     if image is None:
@@ -99,6 +156,9 @@ class InferenceWorker:
         self.phase = 'checking'
         self.ready = False
         self.phase_started = time.monotonic()
+        self.percent = 0
+        self.stage = 'Opening camera and hand tracking'
+        self.detail = 'Preparing the local camera input and MediaPipe tracker'
         self.thread = threading.Thread(target=self.run, daemon=True, name="comfy-inference")
         self.thread.start()
 
@@ -132,6 +192,9 @@ class InferenceWorker:
             self.ready = False
             self.phase = 'loading' if checked else 'checking'
             self.phase_started = time.monotonic()
+            self.percent = 0
+            self.stage = 'Preparing selected style and workflow' if checked else 'Checking selected model and workflow'
+            self.detail = 'The previous result has been cleared; camera and controls remain live'
             self.condition.notify_all()
 
     def snapshot(self):
@@ -141,7 +204,20 @@ class InferenceWorker:
     def readiness(self):
         with self.condition:
             return {'phase': self.phase, 'ready': self.ready, 'error': self.error,
-                    'revision': self.revision, 'elapsed': time.monotonic() - self.phase_started}
+                    'revision': self.revision, 'elapsed': time.monotonic() - self.phase_started,
+                    'percent': self.percent, 'stage': self.stage, 'detail': self.detail}
+
+    def update_progress(self, revision, event):
+        with self.condition:
+            if revision != self.revision or self.ready or self.error:
+                return
+            value = event.get('percent')
+            if value is None:
+                fraction = event.get('fraction', 0)
+                value = 90 + 9 * fraction if self.phase == 'refreshing' else 5 + 85 * fraction
+            self.percent = max(self.percent, min(99, int(value)))
+            self.stage = event.get('stage', self.stage)
+            self.detail = event.get('detail', self.detail)
 
     def retry(self):
         self.select(dict(self.config))
@@ -162,6 +238,7 @@ class InferenceWorker:
             try:
                 if self.checked_revision != revision:
                     validator = ComfyClient(config)
+                    validator.progress_callback = lambda event: self.update_progress(revision, event)
                     try:
                         # The launcher opens the UI while its local backend boots.
                         # Transient loopback connection failures keep the loader visible.
@@ -188,6 +265,7 @@ class InferenceWorker:
                         self.checked_revision = revision
                         self.phase = 'loading'
                 canvas, layout = prepare_full_frame(frame, config["inference_width"], config["inference_height"])
+                self.client.progress_callback = lambda event: self.update_progress(revision, event)
                 styled = self.client.generate(canvas, self.stopping, config)
                 if styled is None:
                     break
@@ -204,6 +282,9 @@ class InferenceWorker:
                         if not self.ready:
                             self.result = None
                         self.phase = 'ready' if self.ready else 'refreshing'
+                        self.percent = 100 if self.ready else max(90, self.percent)
+                        self.stage = 'Ready to reveal the styled feed' if self.ready else 'Preparing a fresh camera frame'
+                        self.detail = 'Camera, gesture mask and styled feed are ready' if self.ready else 'The cold-load frame was old; updating the camera reference'
                         self.latency = finished - captured
                         self.ai_fps = 0 if previous is None or previous_revision != revision else 1 / max(1e-6, finished - previous)
                         previous, previous_revision = finished, revision
@@ -214,6 +295,7 @@ class InferenceWorker:
                     if revision == self.revision:
                         self.error = str(error)
                         self.phase = 'error'
+                        self.stage = 'Workflow could not finish'
                         self.ready = False
                         self.failed_revision = revision
                         self.pending = self.result = None

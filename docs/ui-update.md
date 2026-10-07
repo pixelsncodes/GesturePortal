@@ -58,3 +58,20 @@ The original recording and generated mockups remain in the gallery for context.
 
 The pre-UI full backup remains intact. Changes are saved as separate backend,
 desktop and validation Git checkpoints on `ui-warmup-desktop`.
+
+## Style selector and component progress update
+
+The current interface adds nine styles and a collapsible custom-instruction
+editor. Its loader reports actual backend components and measured 0–100%
+workflow completion, including cached nodes and sampling steps. The percentage
+can pause during a long load; it is not a time estimate. Model/style changes
+clear the previous result, and 100% appears only when a usable frame is ready.
+
+![Current style selector](assets/styles-ui.png)
+
+All nine styles rendered with local FLUX using the same unstylized camera frame.
+Forty viewer/UI checks and both ComfyUI tensor checks passed for this update.
+Saved styles and older custom instructions were checked across window restarts.
+The earlier validation measurements above retain their original scope.
+
+[Style comparison, progress semantics and render results](styles.md)

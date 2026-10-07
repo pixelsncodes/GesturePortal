@@ -1,5 +1,7 @@
 import json
+import shutil
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -56,6 +58,49 @@ class DesktopTests(unittest.TestCase):
         self.assertEqual(window.actions[-1], ord('r'))
         window.update_status({'phase': 'ready', 'fresh': True})
         self.assertFalse(window.retry_button.winfo_manager())
+
+    def test_style_dropdown_updates_instruction_and_customization_is_reachable(self):
+        window = self.window
+        window.style_var.set('Black ink doodle')
+        window.style_box.event_generate('<<ComboboxSelected>>')
+        window.root.update()
+        self.assertEqual(window.values['style_preset'], 'doodle')
+        self.assertIn('black ink', window.values['edit_prompt'])
+        self.assertEqual(window.prompt_text.get('1.0', 'end').strip(), window.values['edit_prompt'])
+        window.style_var.set('Custom instruction')
+        window.style_box.event_generate('<<ComboboxSelected>>')
+        window.root.update()
+        self.assertTrue(window.instruction_open)
+        window.prompt_text.delete('1.0', 'end')
+        window.prompt_text.insert('1.0', 'Render as charcoal, preserve pose.')
+        window.prompt_button.invoke()
+        self.assertEqual(window.values['style_preset'], 'custom')
+
+    def test_saved_style_reopens_and_legacy_custom_instructions_survive_upgrade(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
+            folder = Path(directory)
+            shutil.copyfile(ROOT / 'config.flux.json', folder / 'config.flux.json')
+            window = DesktopWindow(self.config, folder)
+            try:
+                window.change('style_preset', 'blueprint')
+                window.save()
+                expected_prompt = window.values['edit_prompt']
+            finally:
+                window.close()
+            window = DesktopWindow(self.config, folder)
+            try:
+                self.assertEqual(window.style_var.get(), 'Cyanotype blueprint')
+                self.assertEqual(window.values['edit_prompt'], expected_prompt)
+            finally:
+                window.close()
+            (folder / 'controls.json').write_text(json.dumps({'edit_prompt': 'Draw with charcoal.'}))
+            window = DesktopWindow(self.config, folder)
+            try:
+                self.assertEqual(window.style_var.get(), 'Custom instruction')
+                self.assertEqual(window.values['edit_prompt'], 'Draw with charcoal.')
+                self.assertTrue(window.instruction_open)
+            finally:
+                window.close()
 
     def test_instruction_typing_preserves_shortcuts_and_model_specific_controls(self):
         window = self.window

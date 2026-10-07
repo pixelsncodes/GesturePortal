@@ -38,7 +38,7 @@ Both use the actual camera image as a reference. Correct VAEs, native conditioni
 
 The development checks cover gesture geometry, source pixels outside the mask, full-frame letterboxing/restoration, matched canvas dimensions, reference conditioning, schedule behavior, newest-frame replacement, obsolete-result rejection and responsive Windows controls.
 
-The updated suite contains 36 checks across the viewer and ComfyUI runtimes: 34 run in the viewer environment, and two PyTorch-dependent editor checks run with ComfyUI's Python. These validate implementation behavior, not universal image quality.
+The updated suite contains 42 checks across the viewer and ComfyUI runtimes: 40 run in the viewer environment, and two PyTorch-dependent editor checks run with ComfyUI's Python. These validate implementation behavior, not universal image quality.
 
 Local comparisons used the same raw webcam image across models. Warm editor measurements used only one to three repeats; they are small development samples. A separate 298-frame reference-video replay checked the live generation/compositing path and model switching. Parts of that reference already contained styled output, so the replay is not a fair quality benchmark.
 
@@ -49,5 +49,12 @@ The [published GIFs and screenshots](gallery.md) come from the creator's supplie
 Identity drift, skin-color changes, harsh shadow shapes and frame-to-frame flicker remain possible. Reference editing improves the available options but does not solve temporal consistency. More even camera lighting helps the source; larger canvases and more expensive models can increase latency.
 
 The unified desktop layout, compact widget and model-loading states are now implemented. UI UX Pro Max and Taste Redesign guidance informed a targeted Tk upgrade following the existing mockups. No framework migration or image-model change was needed. Startup and selection warm up the actual workflow before gestures; a cached result can be revealed with the current mask. [Implementation and validation](ui-update.md).
+
+Nine prompt-based visual styles now share the native reference editor. A local
+WebSocket supplies component names, node completion and sampling progress for
+the 0–100% loader. All nine styles were rendered with FLUX from the same original
+camera frame, including a revised clay instruction to discourage invented hand
+gestures. This single-frame check demonstrates style differences rather than
+guaranteeing identity or video consistency. [Styles and validation](styles.md).
 
 Improving portable installation and evaluating temporal consistency remain future work.

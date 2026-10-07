@@ -8,6 +8,7 @@ from PIL import Image, ImageTk
 
 from . import theme as t
 from .controls import ControlWindow, FIELDS, MODEL_LABELS, SUBJECT_LABELS, default_settings, normalized_settings
+from .styles import STYLES, STYLE_LABELS, style_name, infer_style
 
 
 class DesktopWindow(ControlWindow):
@@ -24,6 +25,8 @@ class DesktopWindow(ControlWindow):
         if self.path.exists():
             try:
                 saved = json.loads(self.path.read_text(encoding='utf-8'))
+                if 'style_preset' not in saved and 'edit_prompt' in saved:
+                    saved['style_preset'] = infer_style(saved['edit_prompt'])
                 self.values = normalized_settings(dict(self.values, **{key: saved[key] for key in FIELDS if key in saved}))
                 self.styles = {key: float(value) for key, value in saved.get('style_strengths', {}).items()
                                if 0 <= float(value) <= 1}
@@ -38,6 +41,7 @@ class DesktopWindow(ControlWindow):
         self.latest_image = self.photo = None
         self.status = {'phase': 'checking', 'ready': False, 'elapsed': 0}
         self.rotation = 0
+        self.animation_timer = None
         self.root = tk.Tk()
         self.root.title('GesturePortal')
         width = max(960, min(1520, self.root.winfo_screenwidth() - 80))
@@ -105,13 +109,26 @@ class DesktopWindow(ControlWindow):
         self._slider(self.portrait_group, 'shadow_lift', 'Lift dark shadows', 0, .35, .05)
         self.editor_group = ttk.Frame(body)
         self.editor_group.pack(fill='x', pady=(12, 0))
+        ttk.Label(self.editor_group, text='Visual style').pack(anchor='w', pady=(0, 6))
+        self.style_var = tk.StringVar()
+        self.style_box = ttk.Combobox(self.editor_group, textvariable=self.style_var,
+                                      values=list(STYLE_LABELS), state='readonly')
+        self.style_box.pack(fill='x')
+        self.style_box.bind('<<ComboboxSelected>>', lambda _: self.change('style_preset', STYLE_LABELS[self.style_var.get()]))
+        self.style_hint = tk.StringVar()
+        ttk.Label(self.editor_group, textvariable=self.style_hint, style='Hint.TLabel', wraplength=286).pack(anchor='w', pady=(6, 12))
         self._choice(self.editor_group, 'subject', 'Subject preference (manual)', SUBJECT_LABELS)
-        ttk.Label(self.editor_group, text='Editing instruction').pack(anchor='w', pady=(12, 6))
-        self.prompt_text = tk.Text(self.editor_group, height=4, wrap='word', background=t.FIELD, foreground=t.TEXT,
+        self.instruction_toggle = ttk.Button(self.editor_group, text='Customize instruction', command=self.toggle_instruction)
+        self.instruction_toggle.pack(fill='x', pady=(12, 0))
+        self.instruction_group = ttk.Frame(self.editor_group)
+        self.instruction_open = self.values['style_preset'] == 'custom'
+        if self.instruction_open:
+            self.instruction_group.pack(fill='x', pady=(8, 0))
+        self.prompt_text = tk.Text(self.instruction_group, height=4, wrap='word', background=t.FIELD, foreground=t.TEXT,
                                    insertbackground=t.ACCENT, font=(t.FONT, 10), relief='flat', padx=10, pady=10,
                                    highlightthickness=1, highlightbackground=t.BORDER, highlightcolor=t.ACCENT)
         self.prompt_text.pack(fill='x')
-        self.prompt_button = ttk.Button(self.editor_group, text='Apply instruction', style='Accent.TButton',
+        self.prompt_button = ttk.Button(self.instruction_group, text='Apply instruction', style='Accent.TButton',
                                         command=self.apply_prompt)
         self.prompt_button.pack(fill='x', pady=(8, 0))
         self.message = tk.StringVar(value=saved_notice or 'Settings apply to the next generated frame.')
@@ -188,9 +205,31 @@ class DesktopWindow(ControlWindow):
         if not hasattr(self, 'editor_group'):
             return
         editor = self.config['engine'] in ('flux', 'qwen')
+        if hasattr(self, 'style_var'):
+            key = self.values['style_preset']
+            self.style_var.set(style_name(key))
+            self.style_hint.set(STYLES[key][2] if key in STYLES else 'Write your own instruction, then Apply instruction.')
         self.portrait_group.pack_forget()
         self.editor_group.pack_forget()
         (self.editor_group if editor else self.portrait_group).pack(fill='x', pady=(16, 0))
+
+    def change(self, field, value):
+        super().change(field, value)
+        if field == 'style_preset' and value in STYLES:
+            self.prompt_text.configure(state='normal')
+            self.prompt_text.delete('1.0', 'end')
+            self.prompt_text.insert('1.0', self.values['edit_prompt'])
+            self.message.set(f'{style_name(value)} selected. Preparing the next styled frame.')
+        if field == 'style_preset' and value == 'custom':
+            self.toggle_instruction(opened=True)
+
+    def toggle_instruction(self, opened=None):
+        self.instruction_open = not self.instruction_open if opened is None else opened
+        if self.instruction_open:
+            self.instruction_group.pack(fill='x', pady=(8, 0))
+        else:
+            self.instruction_group.pack_forget()
+        self.instruction_toggle.configure(text='Hide instruction' if self.instruction_open else 'Customize instruction')
 
     def sync_model(self, config):
         super().sync_model(config)
@@ -251,11 +290,16 @@ class DesktopWindow(ControlWindow):
         stage = {'checking': 'Checking local workflow', 'loading': 'Loading model and preparing first frame',
                  'refreshing': 'Model loaded · preparing a fresh camera frame', 'ready': 'Ready',
                  'error': 'Model unavailable', 'preview': 'Camera preview'}[phase]
+        if phase in ('checking', 'loading', 'refreshing'):
+            stage = status.get('stage', stage) + f" · {status.get('percent', 0):.0f}%"
+        elif phase == 'ready':
+            stage = 'Ready · 100%'
         if status.get('paused'):
             stage = 'AI paused'
         elif phase == 'ready' and status.get('active'):
             stage = 'Portal active'
-        self.state_text.set(f'{stage} · {name}')
+        preset = style_name(self.values['style_preset']) if self.config['engine'] != 'portrait' else 'Painterly portrait'
+        self.state_text.set(f'{stage} · {preset} · {name}')
         self.state_label.configure(fg=t.ERROR if phase == 'error' else t.ACCENT)
         if phase == 'error':
             self.message.set(status.get('error', 'Could not prepare this model.'))
@@ -299,21 +343,40 @@ class DesktopWindow(ControlWindow):
         if phase not in ('checking', 'loading', 'refreshing') or self.status.get('paused'):
             return
         w = canvas.winfo_width()
-        width = min(460, w - 32)
+        width = min(540, w - 32)
         left = (w - width) / 2
-        canvas.create_rectangle(left, 18, left + width, 100, fill=t.SURFACE, outline=t.BORDER, tags='loader')
+        canvas.create_rectangle(left, 18, left + width, 160, fill=t.SURFACE, outline=t.BORDER, tags='loader')
         canvas.create_oval(left + 18, 40, left + 46, 68, outline=t.FIELD, width=3, tags='loader')
         canvas.create_arc(left + 18, 40, left + 46, 68, start=self.rotation, extent=100, style='arc',
                           outline=t.ACCENT, width=3, tags='loader')
-        text = {'checking': 'Checking local workflow', 'loading': 'Loading your model',
+        text = {'checking': 'Checking local workflow', 'loading': 'Preparing the image workflow',
                 'refreshing': 'Preparing the live styled feed'}[phase]
-        canvas.create_text(left + 60, 44, text=text, anchor='w', fill=t.TEXT,
-                           font=(t.FONT, 12, 'bold'), tags='loader')
-        canvas.create_text(left + 60, 70, text=f"{self.status.get('elapsed', 0):.0f}s elapsed · camera stays live",
-                           anchor='w', fill=t.MUTED, font=(t.FONT, 10), tags='loader')
+        text = self.status.get('stage', text)
+        canvas.create_text(left + 60, 44, text=text, anchor='w', fill=t.TEXT, width=width-80,
+                           font=(t.FONT, 11, 'bold'), tags='loader')
+        detail = self.status.get('detail', 'Preparing model components and the camera reference')
+        canvas.create_text(left + 60, 78, text=detail, anchor='w', fill=t.MUTED, width=width-80,
+                           font=(t.FONT, 9), tags='loader')
+        percent = max(0, min(100, self.status.get('percent', 0)))
+        canvas.create_rectangle(left + 20, 110, left + width - 20, 118, fill=t.FIELD, outline='', tags='loader')
+        if percent:
+            canvas.create_rectangle(left + 20, 110, left + 20 + (width-40)*percent/100, 118,
+                                    fill=t.ACCENT, outline='', tags='loader')
+        canvas.create_text(left + 20, 139, text=f"Workflow {percent:.0f}% · {self.status.get('elapsed', 0):.0f}s elapsed",
+                           anchor='w', fill=t.MUTED, font=(t.FONT, 9), tags='loader')
+        canvas.create_text(left + width - 20, 139, text='Camera stays live', anchor='e', fill=t.MUTED,
+                           font=(t.FONT, 9), tags='loader')
 
     def animate(self):
+        if self.animation_timer is not None:
+            self.root.after_cancel(self.animation_timer)
         if self.motion.get():
             self.rotation = (self.rotation - 24) % 360
         self.draw_loader()
-        self.root.after(80, self.animate)
+        self.animation_timer = self.root.after(80, self.animate)
+
+    def close(self):
+        if self.animation_timer is not None:
+            self.root.after_cancel(self.animation_timer)
+            self.animation_timer = None
+        super().close()

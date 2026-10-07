@@ -1,0 +1,583 @@
+{
+  "anime": {
+    "ready_seconds": 1.906,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Opening camera and hand tracking",
+        "detail": "Preparing the local camera input and MediaPipe tracker"
+      },
+      {
+        "percent": 5,
+        "stage": "Uploading full camera reference",
+        "detail": "Encoding the local camera frame as PNG"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "doodle": {
+    "ready_seconds": 2.766,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 5,
+        "stage": "Uploading full camera reference",
+        "detail": "Encoding the local camera frame as PNG"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "painted_3d": {
+    "ready_seconds": 2.562,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 85,
+        "stage": "Applying style strength",
+        "detail": "Blending the styled scene with the camera image"
+      },
+      {
+        "percent": 90,
+        "stage": "Receiving styled pixels",
+        "detail": "Restoring the camera aspect ratio and reveal canvas"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "xray": {
+    "ready_seconds": 2.625,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 90,
+        "stage": "Receiving styled pixels",
+        "detail": "Restoring the camera aspect ratio and reveal canvas"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "paper": {
+    "ready_seconds": 2.797,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 5,
+        "stage": "Uploading full camera reference",
+        "detail": "Encoding the local camera frame as PNG"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "clay": {
+    "ready_seconds": 2.657,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 85,
+        "stage": "Publishing the styled frame",
+        "detail": "Returning pixels through local memory"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "glass": {
+    "ready_seconds": 2.687,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "blueprint": {
+    "ready_seconds": 2.656,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 85,
+        "stage": "Applying style strength",
+        "detail": "Blending the styled scene with the camera image"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "pixel": {
+    "ready_seconds": 2.922,
+    "progress": [
+      {
+        "percent": 0,
+        "stage": "Preparing selected style and workflow",
+        "detail": "The previous result has been cleared; camera and controls remain live"
+      },
+      {
+        "percent": 5,
+        "stage": "Uploading full camera reference",
+        "detail": "Encoding the local camera frame as PNG"
+      },
+      {
+        "percent": 41,
+        "stage": "Encoding camera into image latents",
+        "detail": "Keeping the complete scene as the visual reference"
+      },
+      {
+        "percent": 45,
+        "stage": "Encoding the selected style",
+        "detail": "Turning the editing instruction into model conditioning"
+      },
+      {
+        "percent": 77,
+        "stage": "Preparing GPU inference",
+        "detail": "FLUX weights and sampling on the local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 1 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 2 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 3 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 77,
+        "stage": "Generating the styled frame",
+        "detail": "Sampling step 4 of 4 \u00b7 local GPU"
+      },
+      {
+        "percent": 81,
+        "stage": "Decoding the styled image",
+        "detail": "Converting image latents back into pixels"
+      },
+      {
+        "percent": 85,
+        "stage": "Applying style strength",
+        "detail": "Blending the styled scene with the camera image"
+      },
+      {
+        "percent": 90,
+        "stage": "Completing the image workflow",
+        "detail": "Waiting for the styled frame"
+      },
+      {
+        "percent": 100,
+        "stage": "Ready to reveal the styled feed",
+        "detail": "Camera, gesture mask and styled feed are ready"
+      }
+    ]
+  },
+  "scope": "All presets rendered through local FLUX.2 Klein 4B from the same no-hands original-camera replay frame. Percentages come from node execution/caching and actual sampling steps, not a timer."
+}

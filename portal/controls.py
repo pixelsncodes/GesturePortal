@@ -4,16 +4,20 @@ import multiprocessing
 import queue
 import time
 from pathlib import Path
+from .styles import ANIME_PROMPT, STYLES, infer_style
 
 
 MODEL_LABELS = ('1 - Portrait v2 (tuned)', '2 - FLUX.2 Klein 4B', '3 - Qwen 2.1 Turbo')
 SUBJECT_LABELS = {'Preserve camera appearance': 'neutral', 'Male': 'male', 'Female': 'female'}
-FIELDS = ('subject', 'edit_prompt', 'face_likeness', 'color_preservation', 'shadow_lift')
-DEFAULT_PROMPT = 'Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style.'
+FIELDS = ('subject', 'edit_prompt', 'style_preset', 'face_likeness', 'color_preservation', 'shadow_lift')
+DEFAULT_PROMPT = ANIME_PROMPT
 
 
 def normalized_settings(values, changed=None):
     result = dict(values)
+    result.setdefault('style_preset', infer_style(result.get('edit_prompt', '')))
+    if result['style_preset'] not in (*STYLES, 'custom'):
+        raise ValueError('Select a valid style preset or Custom instruction.')
     if result.get('subject') not in ('neutral', 'male', 'female'):
         raise ValueError('Subject preference must preserve appearance, Male or Female.')
     prompt = result.get('edit_prompt')
@@ -41,6 +45,7 @@ def default_settings(config, defaults=None):
                   face_likeness=.35, color_preservation=.75, shadow_lift=.15)
     for source in (defaults or {}, config):
         values.update({field: source[field] for field in (*FIELDS, 'style_strength') if field in source})
+    values.setdefault('style_preset', infer_style(values['edit_prompt']))
     return normalized_settings(values)
 
 
@@ -59,6 +64,8 @@ class ControlWindow:
         if self.path.exists():
             try:
                 saved = json.loads(self.path.read_text(encoding='utf-8'))
+                if 'style_preset' not in saved and 'edit_prompt' in saved:
+                    saved['style_preset'] = infer_style(saved['edit_prompt'])
                 self.values = normalized_settings(dict(self.values, **{key: saved[key] for key in FIELDS if key in saved}))
                 self.styles = {key: float(value) for key, value in saved.get('style_strengths', {}).items()
                                if 0 <= float(value) <= 1}
@@ -164,7 +171,12 @@ class ControlWindow:
     def change(self, field, value):
         if self.syncing:
             return
-        self.values = normalized_settings(dict(self.values, **{field: value}), changed=field)
+        updates = {field: value}
+        if field == 'edit_prompt':
+            updates['style_preset'] = infer_style(value)
+        elif field == 'style_preset' and value in STYLES:
+            updates['edit_prompt'] = STYLES[value][1]
+        self.values = normalized_settings(dict(self.values, **updates), changed=field)
         if field == 'style_strength':
             self.styles[self.model_key()] = self.values[field]
         self.refresh()
@@ -422,7 +434,12 @@ class ControlPanel:
         self._send('sync_model', config)
 
     def change(self, field, value):
-        self.values = normalized_settings(dict(self.values, **{field: value}), changed=field)
+        updates = {field: value}
+        if field == 'edit_prompt':
+            updates['style_preset'] = infer_style(value)
+        elif field == 'style_preset' and value in STYLES:
+            updates['edit_prompt'] = STYLES[value][1]
+        self.values = normalized_settings(dict(self.values, **updates), changed=field)
         if field == 'style_strength':
             self.styles[self.model_key()] = self.values[field]
         self._send('change', field, value)

@@ -25,6 +25,8 @@ The full camera image is converted first. Your gesture controls the reveal mask,
 - Portal, full styled view, and real/styled split comparison.
 - Unified desktop interface with model settings, style blending, appearance retention, and editing instructions.
 - Compact widget mode, always-on-top option, and an animated model loader.
+- Component-by-component loading feedback and measured 0–100% workflow progress.
+- Nine visual styles on the existing editor: anime, doodle, painted 3D, X-ray skull, paper, clay, glass, blueprint and pixel art.
 - FLUX by default, automatic no-gesture warm-up, and immediate mask reveal once ready.
 - Frame alignment: the camera image, gesture and AI result can share the same captured moment.
 - Local video replay, optional recording, and explicitly saved source/result comparisons.
@@ -34,6 +36,13 @@ The updated application has a camera-first Tk desktop interface and a compact wi
 ![Implemented GesturePortal desktop interface](docs/assets/desktop-ui.png)
 
 [Updated UI, warm-up behavior and test results](docs/ui-update.md) · [Compact widget](docs/assets/widget-ui.png)
+
+![Nine actual local FLUX styles from the same camera frame](docs/assets/style-comparison.jpg)
+
+Choose **Visual style** in Settings with FLUX or Qwen selected. The nine presets
+reuse the image editor; no additional model downloads are needed. The comparison
+above was generated locally with FLUX from one original camera frame. X-ray is
+an imagined skull effect. [Style guide and loading progress](docs/styles.md).
 
 ## How it works
 
@@ -105,7 +114,7 @@ Default setup downloads Portrait v2 + FLUX. Qwen is optional: after reading its 
 
 Click the camera preview to give it keyboard focus for these shortcuts. Typing in the instruction field does not trigger them. Hold both index fingers up and thumbs inward, with the remaining fingers folded, to form the frame.
 
-**Style strength** blends the generated image with the source. **Keep original face/colors** apply to Portrait only. For FLUX or Qwen, edit the instruction and press **Apply instruction**; select **Preserve camera appearance**, **Male**, or **Female** as a manual rendering preference. **Save controls** persists preferences; **Reset** restores the selected preset.
+**Style strength** blends the generated image with the source. **Keep original face/colors** apply to Portrait only. For FLUX or Qwen, choose a **Visual style**, or open **Customize instruction** and press **Apply instruction** after editing. Select **Preserve camera appearance**, **Male**, or **Female** as a manual rendering preference. **Save settings** persists preferences; **Reset** restores the selected model's defaults. Use 100% style strength for fully monochrome presets.
 
 ## Interface concepts
 

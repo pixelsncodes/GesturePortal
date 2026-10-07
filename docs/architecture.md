@@ -40,6 +40,18 @@ The desktop UI owns its Tk event loop in a separate spawned process. Camera read
 
 FLUX is the default. Validation and generation run in the inference thread, including retrying loopback connections while the launcher starts ComfyUI. The first real camera frame is submitted without requiring hand detection. The UI shows checking, loading, fresh-frame preparation, ready or error states with an animated loader. A slow first result does not end warm-up until a subsequent usable frame arrives. A model switch clears readiness and results and increments the revision. A failed revision stops submitting until Retry or another selection.
 
+The client opens ComfyUI's loopback WebSocket before submitting each workflow.
+Events are filtered by prompt ID, and worker updates by configuration revision.
+Weighted completed/cached nodes and actual sampler steps drive the progress bar;
+descriptive labels identify the executing component. The bar is monotonic within
+a selection and reaches 100% only after a usable result arrives. HTTP history
+polling remains the completion/error fallback if progress events are unavailable.
+
+`portal/styles.py` supplies nine prompt presets for the existing FLUX/Qwen image
+reference workflow. Selecting a style updates the instruction and configuration
+revision without changing model weights. Custom prompts and saved preferences
+use the same settings path. Portrait has a fixed translation style.
+
 ## Alignment and trade-offs
 
 Each AI result retains its source camera image, gesture quadrilateral and capture time. Alignment mode uses those matching objects together. The portal looks spatially consistent, but visible motion inherits generation latency.

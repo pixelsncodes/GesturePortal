@@ -79,6 +79,18 @@ Set `camera` in `config.json` to your webcam's OpenCV index. The default request
 
 FLUX is now the default. At startup or after selecting another model, the animated loader stays visible while the backend loads the workflow and prepares a fresh styled feed. Gesture only when the status says Ready. Model switching can take tens of seconds; controls and the camera remain live. Use Retry model if a load fails.
 
+The loader now names backend components and shows 0–100% workflow completion.
+With FLUX or Qwen, use **Visual style** to choose a preset and **Customize
+instruction** for your own prompt. [Styles and progress details](styles.md).
+Existing installations should refresh viewer dependencies after updating:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+This includes the small WebSocket client used for local progress events; no
+additional image-model weights are required for the style presets.
+
 Alignment is off by default for immediate gesture reveal using the latest styled frame. With alignment on, the real frame, gesture mask and styled output come from the same capture. This produces a better match but advances at the AI update rate. Press **S** to use the latest live camera/gesture with the last completed styled frame; movement can then misalign the two feeds.
 
 Use even front lighting and keep both hands in view. Style strength controls source/result blending. Greater Portrait face/color retention keeps more of the original appearance. For editors, try an instruction that explicitly preserves skin color, age, eye size, hair, glasses, expression and scene composition.
