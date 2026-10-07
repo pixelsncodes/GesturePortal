@@ -20,7 +20,7 @@ class LiveControlTests(unittest.TestCase):
         self.assertEqual(make_workflow(selected,'a'*32)['23']['inputs']['text'],self.config['edit_prompt'])
 
     def test_inactive_editor_prompt_leaves_portrait_graph_unchanged(self):
-        config = json.loads((ROOT/'config.portrait-v2.json').read_text())
+        config = json.loads((ROOT/'docs/legacy/config.portrait-v2.json').read_text())
         settings = default_settings(config)
         settings.update(subject='male',edit_prompt='A new style')
         self.assertEqual(make_workflow(config,'a'*32),make_workflow(apply_settings(config,settings),'a'*32))
@@ -35,7 +35,7 @@ class LiveControlTests(unittest.TestCase):
             make_workflow(dict(self.config,inference_height=360),'a'*32)
 
     def test_only_remaining_models_are_selectable(self):
-        self.assertEqual(len(MODEL_LABELS),3)
-        self.assertTrue(all('DCT' not in label and 'Portrait v1' not in label for label in MODEL_LABELS))
+        self.assertEqual(len(MODEL_LABELS),2)
+        self.assertTrue(all('DCT' not in label and 'Portrait' not in label for label in MODEL_LABELS))
 
 if __name__ == '__main__': unittest.main()

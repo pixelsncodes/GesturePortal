@@ -20,7 +20,7 @@ class ControlEventLoopTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory(dir=ROOT / 'artifacts')
         self.path = Path(self.directory.name)
         shutil.copyfile(ROOT / 'config.flux.json', self.path / 'config.flux.json')
-        self.dct = json.loads((ROOT / 'config.portrait-v2.json').read_text())
+        self.dct = json.loads((ROOT / 'config.qwen.json').read_text())
         self.diffusion = json.loads((ROOT / 'config.flux.json').read_text())
 
     def tearDown(self):
@@ -62,7 +62,7 @@ class ControlEventLoopTests(unittest.TestCase):
             window.root.update()
             window.widgets['style_strength'].set(.6)
             self.assertEqual(window.values['style_strength'], .6)
-            self.assertEqual(str(window.widgets['subject'].cget('state')), 'disabled')
+            self.assertEqual(str(window.widgets['subject'].cget('state')), 'readonly')
             window.model_var.set(window.model_box.cget('values')[1])
             window.model_box.event_generate('<<ComboboxSelected>>')
             window.root.update()
@@ -78,11 +78,7 @@ class ControlEventLoopTests(unittest.TestCase):
             window.prompt_text.insert('1.0', 'Draw anime and preserve camera framing.')
             window.prompt_button.invoke()
             self.assertEqual(window.values['edit_prompt'], 'Draw anime and preserve camera framing.')
-            self.assertEqual(str(window.widgets['face_likeness'].cget('state')), 'disabled')
-            window.sync_model(self.dct)
-            self.assertEqual(str(window.widgets['face_likeness'].cget('state')), 'normal')
-            window.widgets['face_likeness'].set(.5)
-            self.assertEqual(window.values['face_likeness'], .5)
+            self.assertNotIn('face_likeness', window.widgets)
         finally:
             window.close()
 

@@ -7,7 +7,7 @@ from pathlib import Path
 from .styles import ANIME_PROMPT, STYLES, infer_style, upgrade_style
 
 
-MODEL_LABELS = ('1 - Portrait v2 (tuned)', '2 - FLUX.2 Klein 4B', '3 - Qwen 2.1 Turbo')
+MODEL_LABELS = ('1 - FLUX.2 Klein 4B', '2 - Qwen 2.1 Turbo')
 SUBJECT_LABELS = {'Preserve camera appearance': 'neutral', 'Male': 'male', 'Female': 'female'}
 FIELDS = ('subject', 'edit_prompt', 'style_preset', 'face_likeness', 'color_preservation', 'shadow_lift')
 DEFAULT_PROMPT = ANIME_PROMPT
@@ -115,9 +115,7 @@ class ControlWindow:
         direct = ttk.LabelFrame(body, text='Style and camera likeness', padding=10)
         direct.pack(fill='x', pady=(0, 12))
         self._slider(direct, 'style_strength', 'Style strength', 0, 1, .05)
-        self._slider(direct, 'face_likeness', 'Keep original face (portrait only)', 0, 1, .05)
-        self._slider(direct, 'color_preservation', 'Keep original colors (portrait only)', 0, 1, .05)
-        group = ttk.LabelFrame(body, text='Image editor instructions (2 / 3)', padding=10)
+        group = ttk.LabelFrame(body, text='Image editor instructions', padding=10)
         group.pack(fill='x')
         self._choice(group, 'subject', 'Subject preference', SUBJECT_LABELS)
         ttk.Label(group, text='Editing instruction', style='Hint.TLabel').pack(anchor='w')
@@ -139,7 +137,7 @@ class ControlWindow:
         self.syncing = False
         self.config = dict(config)
         self.sync_model(config)
-        for number in range(1, 4):
+        for number in range(1, 3):
             self.root.bind(str(number), lambda _, n=number: self.request_model(n))
 
     def _choice(self, parent, field, label, choices):
@@ -211,11 +209,10 @@ class ControlWindow:
 
     def sync_model(self, config):
         self.config = dict(config)
-        number = {'portrait': 1, 'flux': 2, 'qwen': 3}[config['engine']]
+        number = {'flux': 1, 'qwen': 2}[config['engine']]
         self.model_var.set(MODEL_LABELS[number - 1])
         self.values['style_strength'] = self.styles.get(self.model_key(), config.get('style_strength', 1.0))
-        self.info.set('Portrait: fast painterly fallback; face/color retention keeps camera appearance.' if number == 1 else
-                      'FLUX: four-step reference editing. First model load is slower.' if number == 2 else
+        self.info.set('FLUX: four-step reference editing. First model load is slower.' if number == 1 else
                       'Qwen: six-step reference editing. Higher quality may mean slower updates; research use only.')
         self.prompt_text.configure(state='normal')
         self.prompt_text.delete('1.0', 'end')
@@ -253,7 +250,7 @@ class ControlWindow:
             print(error)
 
     def reset(self):
-        profile = {'portrait': 'config.portrait-v2.json', 'flux': 'config.flux.json', 'qwen': 'config.qwen.json'}[self.config['engine']]
+        profile = {'flux': 'config.flux.json', 'qwen': 'config.qwen.json'}[self.config['engine']]
         path = self.defaults_path.parent / profile
         defaults = json.loads(path.read_text(encoding='utf-8'))
         self.values = default_settings(defaults, json.loads(self.defaults_path.read_text(encoding='utf-8')))

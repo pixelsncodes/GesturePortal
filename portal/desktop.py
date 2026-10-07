@@ -102,11 +102,6 @@ class DesktopWindow(ControlWindow):
         ttk.Label(body, textvariable=self.info, style='Hint.TLabel', wraplength=286).pack(anchor='w', pady=(6, 12))
         self.widgets, self.variables, self.readouts, self.choice_labels = {}, {}, {}, {}
         self._slider(body, 'style_strength', 'Style strength', 0, 1, .05)
-        self.portrait_group = ttk.LabelFrame(body, text='Keep camera likeness', padding=12)
-        self.portrait_group.pack(fill='x', pady=(16, 0))
-        self._slider(self.portrait_group, 'face_likeness', 'Original face', 0, 1, .05)
-        self._slider(self.portrait_group, 'color_preservation', 'Original colors', 0, 1, .05)
-        self._slider(self.portrait_group, 'shadow_lift', 'Lift dark shadows', 0, .35, .05)
         self.editor_group = ttk.Frame(body)
         self.editor_group.pack(fill='x', pady=(12, 0))
         ttk.Label(self.editor_group, text='Visual style').pack(anchor='w', pady=(0, 6))
@@ -195,7 +190,7 @@ class DesktopWindow(ControlWindow):
             self.toggle()
         elif key == ord('w'):
             self.toggle_widget()
-        elif key in (ord('1'), ord('2'), ord('3')):
+        elif key in (ord('1'), ord('2')):
             self.request_model(int(chr(key)))
         elif key is not None:
             self.action(key)
@@ -204,14 +199,12 @@ class DesktopWindow(ControlWindow):
         super().refresh()
         if not hasattr(self, 'editor_group'):
             return
-        editor = self.config['engine'] in ('flux', 'qwen')
         if hasattr(self, 'style_var'):
             key = self.values['style_preset']
             self.style_var.set(style_name(key))
             self.style_hint.set(STYLES[key][2] if key in STYLES else 'Write your own instruction, then Apply instruction.')
-        self.portrait_group.pack_forget()
         self.editor_group.pack_forget()
-        (self.editor_group if editor else self.portrait_group).pack(fill='x', pady=(16, 0))
+        self.editor_group.pack(fill='x', pady=(16, 0))
 
     def change(self, field, value):
         super().change(field, value)
@@ -234,7 +227,6 @@ class DesktopWindow(ControlWindow):
     def sync_model(self, config):
         super().sync_model(config)
         self.info.set({'flux': 'FLUX.2 Klein 4B · reference editing · 4 steps',
-                       'portrait': 'Portrait v2 · fast painterly translation',
                        'qwen': 'Qwen 2.1 Turbo · 6 steps · research use only'}[config['engine']])
 
     def toggle(self):
@@ -286,7 +278,7 @@ class DesktopWindow(ControlWindow):
         previous_error = self.status.get('error')
         self.status = status
         phase = status.get('phase', 'checking')
-        name = {'flux': 'FLUX.2 Klein 4B', 'portrait': 'Portrait v2', 'qwen': 'Qwen 2.1 Turbo'}[self.config['engine']]
+        name = {'flux': 'FLUX.2 Klein 4B', 'qwen': 'Qwen 2.1 Turbo'}[self.config['engine']]
         stage = {'checking': 'Checking local workflow', 'loading': 'Loading model and preparing first frame',
                  'refreshing': 'Model loaded · preparing a fresh camera frame', 'ready': 'Ready',
                  'error': 'Model unavailable', 'preview': 'Camera preview'}[phase]
@@ -298,7 +290,7 @@ class DesktopWindow(ControlWindow):
             stage = 'AI paused'
         elif phase == 'ready' and status.get('active'):
             stage = 'Portal active'
-        preset = style_name(self.values['style_preset']) if self.config['engine'] != 'portrait' else 'Painterly portrait'
+        preset = style_name(self.values['style_preset'])
         self.state_text.set(f'{stage} · {preset} · {name}')
         self.state_label.configure(fg=t.ERROR if phase == 'error' else t.ACCENT)
         if phase == 'error':
@@ -315,7 +307,7 @@ class DesktopWindow(ControlWindow):
                          + ('Make two L shapes to open the portal' if not self.compact else 'Local inference'))
         self.pause_button.configure(text='Resume' if status.get('paused') else 'Pause')
         alignment = status.get('alignment', 'exact' if status.get('synchronize') else 'off')
-        self.align_button.configure(text={'off': 'Align: off', 'smooth': 'Align: smooth', 'exact': 'Align: exact'}[alignment])
+        self.align_button.configure(text={'off': 'Align: off', 'exact': 'Align: exact'}[alignment])
         self.save_button.configure(state='normal' if status.get('fresh') and not status.get('paused') else 'disabled')
         selected = {'portal': 'Portal', 'anime': 'Full style', 'split': 'Split'}.get(status.get('view'), 'Portal')
         for label, button in self.view_buttons.items():

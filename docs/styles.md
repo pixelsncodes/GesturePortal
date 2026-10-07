@@ -51,8 +51,7 @@ guarantee that an image model will never invent an accessory.
 [Animated examples of every style and current UI recordings](gallery.md).
 
 The same selector is available for Qwen's text-conditioned editor, but the nine
-outputs above were validated with FLUX. Portrait v2 keeps its fixed painterly
-translation and has no style selector.
+outputs above were validated with FLUX.
 
 ![Implemented style controls](assets/styles-ui.png)
 

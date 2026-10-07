@@ -1,0 +1,5 @@
+{
+  "scope": "Render-only matched composite benchmark; 1280x720, fixed 680x410 portal, 100 repeats. Excludes inference, camera, hand detection, transport and UI. Not an AI FPS measurement.",
+  "uncached_median_ms": 12.646,
+  "cached_median_ms": 0.407
+}

@@ -14,7 +14,7 @@ The portal is a compositing effect driven by hands. The image model receives the
 
 Moving the portal changes only which pixels are revealed. It does not reframe the image-model input or change its context. This was the main improvement over the early crop-based prototype.
 
-### Portrait v2
+### Retired Portrait v2 (historical)
 
 The custom Portrait loader uses AnimeGANv2's face-paint v2 weights. A full-scene pass provides the styled image. YuNet detects a face for aligned 512 Ã— 512 refinement, which is merged through a face mask. Source-face retention, source-color retention and a modest shadow lift reduce unwanted changes. These are image operations; Portrait has no text conditioning.
 
@@ -50,7 +50,7 @@ polling remains the completion/error fallback if progress events are unavailable
 `portal/styles.py` supplies nine prompt presets for the existing FLUX/Qwen image
 reference workflow. Selecting a style updates the instruction and configuration
 revision without changing model weights. Custom prompts and saved preferences
-use the same settings path. Portrait has a fixed translation style.
+use the same settings path.
 
 ## Alignment and trade-offs
 
@@ -58,16 +58,12 @@ Each AI result retains its source camera image, gesture quadrilateral and captur
 
 Alignment is off by default so the first gesture can reveal an image prepared without any gesture. With alignment off, current camera and gesture data are composited with the last completed styled scene. The outline responds immediately; the styled content may lag when the subject or camera moves.
 
-`FeedRenderer` adds optional Smooth alignment using `MotionAligner`: low-resolution
-backward optical flow maps current-camera pixels to the cached source. The
-source gray image and coordinate grids are cached; the styled image is remapped
-at camera size. Photometric disagreement, excessive displacement and out-of-image
-samples reduce confidence. The current-camera portal mask is multiplied by this
-confidence before blending. Outside-camera pixels remain untouched. New source
-arrays, resolution changes and invalid/stale results reset reference state.
-Exact alignment and raw matched snapshots retain their original behavior.
-These modes do not provide temporal identity locking or new model-generated
-intermediate frames. [Alignment behavior and measurements](alignment.md).
+`FeedRenderer` caches the Exact composite until a new result, view, feather
+setting or gesture epoch arrives. It returns a fresh copy so the displayed
+outline cannot alter cached pixels. Stale results, ended gestures, resolution
+changes and epoch mismatches fall back to the current camera. Compositing runs
+only within the portal bounds. Experimental optical-flow Smooth alignment was
+removed after visible distortion feedback. [Alignment details](alignment.md).
 
 ## Runtime boundaries
 

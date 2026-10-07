@@ -102,7 +102,7 @@ class ClientTests(unittest.TestCase):
         self.config = json.loads((ROOT / 'config.flux.json').read_text(encoding='utf-8'))
 
     def test_portrait_fallback_retains_full_frame_and_face_detail(self):
-        config = json.loads((ROOT / 'config.portrait-v2.json').read_text())
+        config = json.loads((ROOT / 'docs/legacy/config.portrait-v2.json').read_text())
         graph = make_workflow(config, 'a' * 32)
         self.assertEqual(graph['15']['inputs']['images'], ['4', 0])
         self.assertTrue(graph['15']['inputs']['face_detail'])

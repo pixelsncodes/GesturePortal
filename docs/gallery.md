@@ -1,5 +1,9 @@
 # Demo, screenshots and concepts
 
+UI screenshots and recordings document the earlier build; its Portrait and
+Smooth options have since been retired. The current interface offers FLUX/Qwen
+and Off/Exact alignment.
+
 ## Current visual styles and measured loading
 
 ![Nine local FLUX styles](assets/style-comparison.jpg)

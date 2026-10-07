@@ -65,11 +65,17 @@ custom prompts remain intact. All nine updated presets were checked with a
 supplied no-glasses image, and GIFs/current UI videos were recorded through
 real local FLUX inference using the camera portion of the earlier recording.
 
-Feedback about Align's low visible frame rate led to a separate Smooth mode:
-the current camera and gesture stay live while CPU optical flow motion-adjusts
-the cached styled scene. Exact captured alignment remains available, and the UI
-reports camera FPS separately from AI updates. Motion assistance improves display
-movement without accelerating inference or guaranteeing temporal consistency.
-[Alignment implementation and validation](alignment.md).
+An experimental optical-flow Smooth alignment mode was tested, then removed
+after the user reported visible distortion. Portrait v2 was also retired from
+selection and setup. FLUX remains the default with Qwen as the second editor.
+Exact alignment retains captured-pair fidelity and now caches repeated matched
+composites. This lowers display work without claiming faster model generation.
+The original demo GIF and video remain featured on GitHub.
+[Current alignment behavior](alignment.md).
 
 Improving portable installation and evaluating temporal consistency remain future work.
+
+Current retirement/cache update validation: 50 checks (48 viewer/UI passed, two
+tensor checks skipped in the viewer runtime). An 80-frame video preview smoke
+test passed. A 100-repeat render-only benchmark at 1280 × 720 measured 12.646 ms
+uncached versus 0.407 ms cached median; model generation speed was not changed.

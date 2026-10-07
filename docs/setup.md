@@ -7,7 +7,7 @@ GesturePortal uses two Python environments: Python 3.12 for the camera/controls 
 - Windows with a working webcam and Python 3.12, including Tk.
 - An existing [ComfyUI installation](https://github.com/Comfy-Org/ComfyUI) supporting the native FLUX.2 and Qwen Image 2.1 nodes. The tested version is 0.38.0.
 - A compatible NVIDIA/PyTorch setup for AI inference. Tested: RTX 5070 Ti, 16 GB VRAM, Core i9, 32 GB RAM. Other hardware has not been validated.
-- Disk space for the separate model bundles: approximately 11.9 GB for FLUX and 17.3 GB for Qwen, plus Portrait/hand/face assets and the installed runtimes.
+- Disk space for the separate model bundles: approximately 11.9 GB for FLUX and 17.3 GB for Qwen, plus the hand tracker and the installed runtimes.
 
 ## Download and install the viewer
 
@@ -17,15 +17,14 @@ cd GesturePortal
 .\Setup.ps1 -Python 'C:\Python312\python.exe'
 ```
 
-Replace the example Python path with your own Python 3.12 executable. Setup creates `.venv`, installs the viewer requirements, and downloads the hand tracker, Portrait assets and FLUX bundle. Its fallback Python path is specific to the original development machine, so fresh installations should supply `-Python`.
+Replace the example Python path with your own Python 3.12 executable. Setup creates `.venv`, installs the viewer requirements, and downloads the hand tracker and FLUX bundle. Its fallback Python path is specific to the original development machine, so fresh installations should supply `-Python`.
 
 | Setup option | Downloads |
 | --- | --- |
-| No option | Hand tracker + Portrait + FLUX |
+| No option | Hand tracker + FLUX |
 | `-HandOnly` | Hand tracker only |
-| `-PortraitOnly` | Hand tracker + Portrait and face assets |
 | `-FluxOnly` | Hand tracker + FLUX |
-| `-QwenResearch` | Hand tracker + Qwen; does not add Portrait/FLUX |
+| `-QwenResearch` | Hand tracker + Qwen; does not add FLUX |
 
 Run model-specific options separately rather than combining them. Existing files are reused when their expected checksums match.
 
@@ -54,7 +53,7 @@ In a second terminal:
 .\Start-Portal.ps1
 ```
 
-The default is Portrait v2. Press **2** for FLUX or **3** for Qwen after downloading those bundles. Alternatively launch a preset:
+The default is FLUX. Press **1** for FLUX or **2** for Qwen after downloading its bundle. Alternatively launch a preset:
 
 ```powershell
 .\Start-Portal.ps1 -Config .\config.flux.json
@@ -92,18 +91,16 @@ This includes the small WebSocket client used for local progress events; no
 additional image-model weights are required for the style presets.
 
 Alignment is Off by default for immediate gesture reveal. Press **S** or click
-**Align** to cycle Off, Smooth and Exact. Smooth keeps the camera and gesture
-live and uses local motion tracking to reposition the latest styled pixels.
-Exact shows the real frame, mask and styled output from the same capture, so
-motion advances at the slower AI update rate. Smooth can distort fast motion
-and adds CPU work; it does not increase model-generation speed.
-[Alignment modes and measurements](alignment.md).
+**Align** to toggle Off and Exact. Exact uses a matched camera capture, gesture
+mask and styled output. Cached compositing reduces repeated display work, but
+visible motion still advances at the slower AI generation rate.
+[Alignment details](alignment.md).
 
-Use even front lighting and keep both hands in view. Style strength controls source/result blending. Greater Portrait face/color retention keeps more of the original appearance. Editor presets follow the current subject's age, features and visible accessories. Avoid adding specific accessory or appearance assumptions to custom instructions unless that is the intended transformation.
+Use even front lighting and keep both hands in view. Style strength controls source/result blending. Editor presets follow the current subject's age, features and visible accessories. Avoid adding specific accessory or appearance assumptions to custom instructions unless that is the intended transformation.
 
 ## Workflows and configuration
 
-`workflows/gesture_portal.json` is the default FLUX frontend graph; its `_api.json` counterpart is the API graph. Equivalent pairs are provided for Portrait v2, FLUX and Qwen.
+`workflows/gesture_portal.json` is the default FLUX frontend graph; its `_api.json` counterpart is the API graph. Equivalent pairs are provided for FLUX and Qwen; retired Portrait presets are archived under `docs/legacy/`.
 
 Importing these graphs lets you inspect the pipeline, but their frame IDs are placeholders. The viewer submits actual frames and IDs during streaming. The gesture mask is applied in the viewer, after generation. Changes made in ComfyUI's graph editor do not update the viewer's presets.
 
@@ -145,8 +142,7 @@ The viewer runtime skips two tensor-node checks if PyTorch is absent. Run those 
 | Backend/model unavailable | Check download completion, supplied ComfyUI paths and startup logs. |
 | Old node version | Close the old project backend and restart it to load the current custom nodes. |
 | New preset appears unchanged | Saved `controls.json` may override it. Use Reset, then Save controls. |
-| Prompt edit has no effect | Use FLUX/Qwen and click Apply instruction. Portrait has no text conditioning. |
-| Face/color controls disabled | Those settings apply only to Portrait; disabled controls in editor modes are intentional. |
+| Prompt edit has no effect | Use FLUX/Qwen and click Apply instruction. |
 | Slow first image or switch | Loading/offloading and initial compilation can take tens of seconds. Wait for Ready; the animated loader covers cold loading and fresh-frame preparation. |
 | Face or room drifts | Lower style blend, improve lighting, or strengthen preservation instructions; fidelity is not guaranteed. |
 | Flicker between results | These presets generate individual images and have no temporal video consistency model. |

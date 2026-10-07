@@ -60,7 +60,7 @@ class DesktopTests(unittest.TestCase):
         self.assertFalse(window.retry_button.winfo_manager())
 
     def test_alignment_labels_distinguish_live_motion_from_exact_capture(self):
-        for mode in ('off', 'smooth', 'exact'):
+        for mode in ('off', 'exact'):
             self.window.update_status({'phase': 'ready', 'alignment': mode, 'preview_fps': 29.4, 'ai_fps': .8})
             self.assertEqual(self.window.align_button.cget('text'), f'Align: {mode}')
             self.assertIn('29 camera fps', self.window.metrics.get())
@@ -116,14 +116,13 @@ class DesktopTests(unittest.TestCase):
         window.keypress(SimpleNamespace(widget=window.viewer, keysym='a', char='a'))
         self.assertEqual(window.actions, [ord('a')])
         self.assertTrue(window.editor_group.winfo_ismapped())
-        self.assertFalse(window.portrait_group.winfo_ismapped())
-        portrait = json.loads((ROOT / 'config.portrait-v2.json').read_text())
-        window.sync_model(portrait)
+        self.assertNotIn('face_likeness', window.widgets)
+        qwen = json.loads((ROOT / 'config.qwen.json').read_text())
+        window.sync_model(qwen)
         window.root.update()
-        self.assertFalse(window.editor_group.winfo_ismapped())
-        self.assertTrue(window.portrait_group.winfo_ismapped())
-        window.widgets['shadow_lift'].set(.25)
-        self.assertEqual(window.values['shadow_lift'], .25)
+        self.assertTrue(window.editor_group.winfo_ismapped())
+        self.assertEqual(window.model_box.cget('values'), ('1 - FLUX.2 Klein 4B', '2 - Qwen 2.1 Turbo'))
+
 
 
 class ThemeTests(unittest.TestCase):

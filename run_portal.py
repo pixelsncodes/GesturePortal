@@ -30,6 +30,8 @@ def main():
                         help="Explicit local-video content rectangle, for references with captions/black bars")
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
+    if config.get("engine") not in ("flux", "qwen"):
+        raise ValueError("This model is retired. Launch config.flux.json or config.qwen.json.")
     if config["inference_width"] % 8 or config["inference_height"] % 8:
         raise ValueError("Inference dimensions must be multiples of 8.")
     if not 64 <= config["inference_width"] <= 1024 or not 64 <= config["inference_height"] <= 1024:
@@ -74,8 +76,7 @@ def main():
         renderer = FeedRenderer()
         preview_fps, previous_capture = 0.0, None
         notice, notice_until, last_switch = '', 0.0, 0.0
-        profiles = {ord('1'): 'config.portrait-v2.json', ord('2'): 'config.flux.json',
-                    ord('3'): 'config.qwen.json'}
+        profiles = {ord('1'): 'config.flux.json', ord('2'): 'config.qwen.json'}
 
         def choose_model(number):
             nonlocal config, notice, notice_until, last_switch
@@ -208,12 +209,11 @@ def main():
                 if key == ord('s'):
                     alignment = ALIGNMENT_MODES[(ALIGNMENT_MODES.index(alignment)+1) % len(ALIGNMENT_MODES)]
                     notice = {'off': 'Align off: live camera with the latest styled frame',
-                              'smooth': 'Smooth align: live motion; approximate image matching',
                               'exact': 'Exact align: matching captured frames; motion follows AI speed'}[alignment]
                     notice_until = time.monotonic()+4
                 if key == ord('h') and panel:
                     panel.toggle()
-                if key in (ord('['), ord(']')) and worker is not None and config.get('engine') in ('portrait', 'flux', 'qwen'):
+                if key in (ord('['), ord(']')) and worker is not None and config.get('engine') in ('flux', 'qwen'):
                     change = -0.05 if key == ord('[') else 0.05
                     current_strength = panel.values['style_strength'] if panel else config['style_strength']
                     strength = round(float(np.clip(current_strength + change, 0, 1)), 2)

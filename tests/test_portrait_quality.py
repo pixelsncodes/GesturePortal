@@ -36,7 +36,7 @@ class PortraitQualityTests(unittest.TestCase):
         self.assertTrue(np.array_equal(result[:, :16], styled[:, :16]))
 
     def test_tuned_default_passes_quality_settings_to_portrait_node(self):
-        config = json.loads((ROOT / 'config.portrait-v2.json').read_text())
+        config = json.loads((ROOT / 'docs/legacy/config.portrait-v2.json').read_text())
         self.assertEqual(config['portrait_model'], 'face_paint_512_v2.pt')
         inputs = make_workflow(config, 'a' * 32)['15']['inputs']
         self.assertEqual(inputs['strength'], .85)
