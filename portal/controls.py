@@ -1,6 +1,7 @@
 """Optional local controls window; no camera access or gender classification."""
 import json
 import multiprocessing
+import queue
 import time
 from pathlib import Path
 
@@ -263,10 +264,14 @@ class ControlWindow:
         self.root.destroy()
 
 
-def _controls_process(connection, config, root_path):
+def _controls_process(connection, config, root_path, frame_queue=None):
     window = None
     try:
-        window = ControlWindow(config, root_path)
+        if frame_queue is None:
+            window = ControlWindow(config, root_path)
+        else:
+            from .desktop import DesktopWindow
+            window = DesktopWindow(config, root_path)
 
         def snapshot():
             return {'values': dict(window.values), 'styles': dict(window.styles)}
@@ -294,6 +299,17 @@ def _controls_process(connection, config, root_path):
                         window.toggle()
                     elif command == 'hide':
                         window.hide()
+                if frame_queue is not None:
+                    newest = None
+                    for _ in range(2):
+                        try:
+                            newest = frame_queue.get_nowait()
+                        except queue.Empty:
+                            break
+                    if newest is not None:
+                        window.show_frame(*newest)
+                    while window.actions:
+                        connection.send(('action', window.actions.pop(0)))
                 number, changed = window.take_events()
                 if number is not None or changed:
                     connection.send(('event', snapshot(), number, changed))
@@ -327,11 +343,14 @@ class _PanelMessage:
 
 class ControlPanel:
     """Process boundary: OpenCV, camera reads and HTTP checks cannot block Tk input."""
-    def __init__(self, config, root_path):
+    def __init__(self, config, root_path, desktop=True):
         self.config = dict(config)
         context = multiprocessing.get_context('spawn')
+        self.frame_queue = context.Queue(maxsize=2) if desktop else None
+        self.last_frame = 0.0
+        self.actions = []
         self.connection, child = context.Pipe()
-        self.process = context.Process(target=_controls_process, args=(child, config, str(root_path)),
+        self.process = context.Process(target=_controls_process, args=(child, config, str(root_path), self.frame_queue),
                                        daemon=True, name='gesture-controls')
         self.process.start()
         child.close()
@@ -368,7 +387,27 @@ class ControlPanel:
                 if message[2] is not None:
                     number = message[2]
                 changed |= message[3]
+            elif message[0] == 'action':
+                self.actions.append(message[1])
         return number, changed
+
+    def take_actions(self):
+        actions, self.actions = self.actions, []
+        return actions
+
+    def show_frame(self, frame, status):
+        if self.frame_queue is None or time.monotonic() - self.last_frame < 1 / 30:
+            return
+        import cv2
+        ok, encoded = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
+        if not ok:
+            return
+        # A bounded channel prevents video rendering from ever blocking capture.
+        try:
+            self.frame_queue.put_nowait((encoded.tobytes(), status))
+            self.last_frame = time.monotonic()
+        except queue.Full:
+            pass
 
     def model_key(self, config=None):
         config = config or self.config
@@ -408,3 +447,6 @@ class ControlPanel:
                 self.process.terminate()
                 self.process.join(timeout=2)
         self.connection.close()
+        if self.frame_queue is not None:
+            self.frame_queue.cancel_join_thread()
+            self.frame_queue.close()

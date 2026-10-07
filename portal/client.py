@@ -95,6 +95,7 @@ class InferenceWorker:
         self.revision = 0
         self.checked_revision = None
         self.failed_revision = None
+        self.executed_revision = None
         self.phase = 'checking'
         self.ready = False
         self.phase_started = time.monotonic()
@@ -162,13 +163,28 @@ class InferenceWorker:
                 if self.checked_revision != revision:
                     validator = ComfyClient(config)
                     try:
-                        validator.check()
+                        # The launcher opens the UI while its local backend boots.
+                        # Transient loopback connection failures keep the loader visible.
+                        deadline = time.monotonic() + 120
+                        while not self.stopping.is_set():
+                            try:
+                                validator.check()
+                                break
+                            except (requests.ConnectionError, requests.Timeout):
+                                with self.condition:
+                                    if revision != self.revision:
+                                        break
+                                if time.monotonic() >= deadline:
+                                    raise RuntimeError('The local AI backend did not start. Check .comfy-stderr.log, then Retry model.')
+                                self.stopping.wait(.5)
                     finally:
                         if hasattr(validator, 'session'):
                             validator.session.close()
                     with self.condition:
                         if revision != self.revision:
                             continue
+                        if self.stopping.is_set():
+                            break
                         self.checked_revision = revision
                         self.phase = 'loading'
                 canvas, layout = prepare_full_frame(frame, config["inference_width"], config["inference_height"])
@@ -182,7 +198,9 @@ class InferenceWorker:
                         self.result = (styled, frame, quad, epoch, captured)
                         # The cold-load image may already be stale. Keep the loader until
                         # a fresh follow-up image is available; a finished graph is not enough.
-                        self.ready = finished - captured <= config['result_max_age']
+                        age_limit = config['result_max_age'] if self.executed_revision == revision else min(3, config['result_max_age'])
+                        self.ready = finished - captured <= age_limit
+                        self.executed_revision = revision
                         self.phase = 'ready' if self.ready else 'refreshing'
                         self.latency = finished - captured
                         self.ai_fps = 0 if previous is None or previous_revision != revision else 1 / max(1e-6, finished - previous)

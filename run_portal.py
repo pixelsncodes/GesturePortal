@@ -9,7 +9,7 @@ import numpy as np
 
 from portal.client import InferenceWorker
 from portal.geometry import FrameTracker, hand_quad
-from portal.compositor import composite_full_frame
+from portal.view import render_feed
 from portal.snapshot import save_pair
 from portal.controls import ControlPanel, apply_settings
 from portal.workflow import make_workflow
@@ -47,7 +47,7 @@ def main():
     frames, portals, two_hands, composited = 0, 0, 0, 0
     started = time.monotonic()
     try:
-        if not args.headless and not args.preview_only:
+        if not args.headless:
             panel = ControlPanel(config, ROOT)
             config = panel.apply(config)
         worker = None if args.preview_only else InferenceWorker(config)
@@ -68,9 +68,6 @@ def main():
             min_tracking_confidence=0.45)
         detector = mp.tasks.vision.HandLandmarker.create_from_options(options)
         tracker = FrameTracker(config["smoothing"], config["gesture_hold_seconds"], config["tracking_grace_seconds"])
-        if not args.headless:
-            cv2.namedWindow("Gesture Portal", cv2.WINDOW_NORMAL)
-            cv2.resizeWindow("Gesture Portal", 1280, 720)
         paused, last_ms = False, -1
         view = 'portal'
         synchronize = config.get('synchronize_feed', True)
@@ -103,11 +100,13 @@ def main():
             notice_until = time.monotonic() + 3
 
         while True:
+            keys = []
             if panel:
                 requested, changed = panel.poll()
-                if requested is not None:
+                keys = panel.take_actions()
+                if requested is not None and worker is not None:
                     choose_model(requested)
-                if changed:
+                if changed and worker is not None:
                     selected = panel.apply(config)
                     old_graph, new_graph = make_workflow(config, '0' * 32), make_workflow(selected, '0' * 32)
                     try:
@@ -158,39 +157,25 @@ def main():
             if quad is not None and not paused:
                 portals += 1
                 status = "Tracking preview" if worker is None else "Warming up / waiting for fresh anime feed"
-            if result is not None and not paused:
-                styled, source, source_quad, epoch, input_time = result
-                fresh = captured - input_time <= config["result_max_age"]
-                if fresh and source.shape == frame.shape:
-                    base = source if synchronize else frame
-                    reveal_quad = source_quad if synchronize else quad
-                    if view == 'anime':
-                        display, display_quad = styled.copy(), None
-                        status = "Full anime feed"
-                    elif view == 'split':
-                        display, display_quad = base.copy(), None
-                        display[:, w // 2:] = styled[:, w // 2:]
-                        status = "Real / anime comparison"
-                    elif quad is not None and reveal_quad is not None and epoch == tracker.epoch:
-                        display = composite_full_frame(base, styled, reveal_quad, config["feather_pixels"])
-                        display_quad = reveal_quad
-                        composited += 1
-                        status = "Aligned anime portal" if synchronize else "Live camera / latest anime portal"
+            activated = False
+            if not paused:
+                display, display_quad, activated = render_feed(frame, quad, result, captured, config,
+                                                                view, synchronize, tracker.epoch)
+                composited += int(activated)
             if display_quad is not None and not paused and view == 'portal':
                 cv2.polylines(display, [np.rint(display_quad).astype(np.int32)], True, (180, 230, 80), 2, cv2.LINE_AA)
             if paused:
-                status = "AI paused â€” press Space to resume"
+                status = "AI paused - press Space to resume"
             if time.monotonic() < notice_until:
                 status = notice
             if error:
-                print(error)
-                raise RuntimeError(error)
-            cv2.rectangle(display, (0, 0), (w, 66), (20, 20, 20), -1)
-            cv2.putText(display, status, (12, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (245, 245, 245), 1, cv2.LINE_AA)
-            name = config.get('name', 'Diffusion anime')
-            active = f" | {config.get('subject', 'neutral')}" if config.get('engine') in ('flux', 'qwen') else ''
-            metrics = f"{name}{active} | {ai_fps:.1f} fps / {latency*1000:.0f} ms | H controls | A anime | D split | C save | Q quit"
-            cv2.putText(display, metrics, (12, 50), cv2.FONT_HERSHEY_SIMPLEX, min(0.48, w / 1800), (160, 190, 200), 1, cv2.LINE_AA)
+                status = 'Model unavailable; use Retry model or choose another model'
+            readiness = {'phase': 'preview', 'ready': True, 'elapsed': 0} if worker is None else worker.readiness()
+            if panel:
+                panel.show_frame(display, dict(readiness, active=activated, paused=paused,
+                                               view=view, synchronize=synchronize, ai_fps=ai_fps, latency=latency,
+                                               fresh=result is not None and captured - result[-1] <= config['result_max_age'],
+                                               notice=notice if time.monotonic() < notice_until else ''))
             if args.record:
                 if writer is None:
                     args.record.parent.mkdir(parents=True, exist_ok=True)
@@ -199,12 +184,13 @@ def main():
                         raise RuntimeError("Could not open the output recording.")
                 writer.write(display)
             frames += 1
-            if not args.headless:
-                cv2.imshow("Gesture Portal", display)
-                delay = max(1, round((started + frames / fps - time.monotonic()) * 1000)) if args.video else 1
-                key = cv2.waitKey(delay) & 0xFF
-                if key in (ord('q'), 27) or cv2.getWindowProperty("Gesture Portal", cv2.WND_PROP_VISIBLE) < 1:
+            for key in keys:
+                if key in (ord('q'), 27):
                     break
+                if key == ord('p'):
+                    view = 'portal'
+                if key == ord('r') and worker:
+                    worker.retry()
                 if key == 32:
                     paused = not paused
                 if key == ord('a'):
@@ -233,6 +219,10 @@ def main():
                     else:
                         notice = 'Wait for a fresh anime image before saving'
                     notice_until = time.monotonic() + 3
+            if any(key in (ord('q'), 27) for key in keys):
+                break
+            if args.video and not args.headless:
+                time.sleep(max(0, started + frames / fps - time.monotonic()))
             if args.max_frames and frames >= args.max_frames:
                 break
     finally:

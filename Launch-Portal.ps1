@@ -25,16 +25,8 @@ try {
             $port = ([Uri]$settings.comfy_url).Port
             Write-Host 'Starting the local AI backend...'
             $ownedBackend = & (Join-Path $PSScriptRoot 'Start-Comfy.ps1') -Port $port -Background
-            $deadline = (Get-Date).AddSeconds(120)
-            while ((Get-Date) -lt $deadline) {
-                if ($ownedBackend.HasExited) { throw 'Backend startup failed. Check .comfy-stderr.log in this folder.' }
-                try {
-                    $health = Invoke-RestMethod -Uri ($settings.comfy_url + '/gesture_portal/health') -TimeoutSec 2
-                    if ($health.version -eq 5) { $ready = $true; break }
-                } catch {}
-                Start-Sleep -Milliseconds 500
-            }
-            if (-not $ready) { throw 'Backend startup timed out. Check .comfy-stderr.log.' }
+            # The viewer opens immediately and shows its animated loader while the
+            # inference thread waits for the local backend and warms the workflow.
         }
     }
     Write-Host 'Opening the camera. Make two L shapes with your index fingers and thumbs.'
