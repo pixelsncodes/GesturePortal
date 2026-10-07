@@ -201,6 +201,8 @@ class InferenceWorker:
                         age_limit = config['result_max_age'] if self.executed_revision == revision else min(3, config['result_max_age'])
                         self.ready = finished - captured <= age_limit
                         self.executed_revision = revision
+                        if not self.ready:
+                            self.result = None
                         self.phase = 'ready' if self.ready else 'refreshing'
                         self.latency = finished - captured
                         self.ai_fps = 0 if previous is None or previous_revision != revision else 1 / max(1e-6, finished - previous)

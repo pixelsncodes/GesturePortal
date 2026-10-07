@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import numpy as np
+import requests
 from portal.client import InferenceWorker
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,6 +17,27 @@ class WarmupTests(unittest.TestCase):
     def setUp(self):
         self.config = json.loads((ROOT / 'config.flux.json').read_text())
         self.config.update(inference_width=64, inference_height=64, result_max_age=.15)
+
+    def test_backend_boot_connection_failure_retries_in_background(self):
+        checked = []
+        class Client:
+            def __init__(self, config): self.session = SimpleNamespace(close=lambda: None)
+            def check(self):
+                checked.append(1)
+                if len(checked) == 1: raise requests.ConnectionError('Backend still booting')
+            def generate(self, frame, stopping, config=None): return frame
+        config = dict(self.config, result_max_age=2)
+        with patch('portal.client.ComfyClient', Client):
+            worker = InferenceWorker(config)
+            try:
+                worker.submit(np.zeros((16, 16, 3), np.uint8), None, 0, time.monotonic())
+                with worker.condition:
+                    self.assertTrue(worker.condition.wait_for(lambda: worker.completed == 1, 2))
+                self.assertEqual(len(checked), 2)
+                self.assertTrue(worker.readiness()['ready'])
+                self.assertIsNone(worker.error)
+            finally:
+                worker.close()
 
     def test_no_gesture_warms_model_and_cold_stale_frame_is_not_ready(self):
         entered, release, second, finish = [threading.Event() for _ in range(4)]
@@ -44,6 +66,7 @@ class WarmupTests(unittest.TestCase):
                     self.assertTrue(worker.condition.wait_for(lambda: worker.completed == 1, 1))
                 self.assertEqual(worker.readiness()['phase'], 'refreshing')
                 self.assertFalse(worker.readiness()['ready'])
+                self.assertIsNone(worker.snapshot()[0])
                 worker.submit(frame, None, 0, time.monotonic())
                 self.assertTrue(second.wait(1))
                 finish.set()

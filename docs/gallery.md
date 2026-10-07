@@ -1,20 +1,30 @@
 # Demo, screenshots and concepts
 
-## Actual app recording
+## Implemented desktop and widget
+
+![Updated desktop interface](assets/desktop-ui.png)
+
+![Compact widget mode](assets/widget-ui.png)
+
+![Animated model-loading state](assets/loader-ui.png)
+
+Actual renders of the implemented Tk interface during local FLUX acceptance tests using replayed frames from the supplied demo. These are UI verification captures; the replay already includes stylized content and is not a fresh raw-webcam quality comparison. [Update and validation](ui-update.md).
+
+## Earlier app recording
 
 ![GesturePortal actual portal effect](assets/demo-portal.gif)
 
-The close-up GIF uses seconds 1–10.5 of the supplied 11.8-second recording. It crops the webcam viewer and samples at 6 fps without speeding up playback. The displayed AI updates remain those of the actual application.
+The close-up GIF uses seconds 1â€“10.5 of the supplied 11.8-second recording. It crops the webcam viewer and samples at 6 fps without speeding up playback. The displayed AI updates remain those of the actual application.
 
-[Watch the full MP4 on GitHub](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal.mp4) · [Download MP4](https://raw.githubusercontent.com/pixelsncodes/GesturePortal/main/docs/assets/GesturePortal.mp4)
+[Watch the full MP4 on GitHub](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal.mp4) Â· [Download MP4](https://raw.githubusercontent.com/pixelsncodes/GesturePortal/main/docs/assets/GesturePortal.mp4)
 
-The published MP4 contains the full recording, resized from 2560 × 1440 to 1920 × 1080, encoded as H.264 at its original 30 fps, and exported without audio. The source recording remains untouched locally. The 30 fps describes recording playback, not AI throughput.
+The published MP4 contains the full recording, resized from 2560 Ã— 1440 to 1920 Ã— 1080, encoded as H.264 at its original 30 fps, and exported without audio. The source recording remains untouched locally. The 30 fps describes recording playback, not AI throughput.
 
 ### Desktop capture
 
 ![Actual desktop recording, with separate controls and viewer](assets/demo-desktop.gif)
 
-This shows the current two-window prototype, including the partially overlapped controls panel. It is not the unified desktop concept below.
+This shows the earlier two-window prototype, including the partially overlapped controls panel. It is not the unified desktop concept below.
 
 ### Viewer screenshot
 
@@ -34,7 +44,7 @@ These are the supplied screenshots, copied without creative edits.
 
 ![ComfyUI-style GesturePortal architecture with actual camera and portal previews](assets/workflow-explainer.png)
 
-[Full-resolution PNG](assets/workflow-explainer.png) · [Editable SVG](assets/workflow-explainer.svg)
+[Full-resolution PNG](assets/workflow-explainer.png) Â· [Editable SVG](assets/workflow-explainer.svg)
 
 The diagram shows camera capture, MediaPipe tracking, L-gesture activation, the soft mask, full-scene reference editing, restoration, frame alignment and compositing. The bottom sequence shows the actual reveal opening, moving and closing.
 
@@ -52,7 +62,7 @@ AI-generated branding artwork informed by the actual screenshot. This is an illu
 
 ## Interface mockups
 
-All three screens are AI-generated **design concepts**. They illustrate a possible future layout; widget chrome and the unified application layout are not implemented. Rendered preview content is illustrative and does not demonstrate the quality of the selected model.
+All three screens are AI-generated **design concepts**. They illustrate a possible future layout; they guided the implemented desktop and widget above. The original artwork remains illustrative rather than an exact UI screenshot. Rendered preview content is illustrative and does not demonstrate the quality of the selected model.
 
 ### Full desktop
 

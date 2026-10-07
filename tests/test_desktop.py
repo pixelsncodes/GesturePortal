@@ -33,6 +33,7 @@ class DesktopTests(unittest.TestCase):
         window.animate()
         self.assertNotEqual(rotation, window.rotation)
         window.show_frame(encoded.tobytes(), {'phase': 'ready', 'ready': True, 'fresh': True, 'active': True})
+        self.assertGreater(window.photo.width(), 640)
         self.assertFalse(window.viewer.find_withtag('loader'))
         self.assertIn('Portal active', window.state_text.get())
         self.assertEqual(str(window.save_button.cget('state')), 'normal')

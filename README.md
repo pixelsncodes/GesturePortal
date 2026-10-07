@@ -23,11 +23,17 @@ The full camera image is converted first. Your gesture controls the reveal mask,
 - Two-hand tracking with a smoothed, tilted four-corner portal and soft mask edges.
 - Whole-scene translation with Portrait v2, FLUX.2 Klein 4B, or Qwen Image 2.1 Turbo.
 - Portal, full styled view, and real/styled split comparison.
-- Separate controls window for model selection, style blending, appearance retention, and editing instructions.
+- Unified desktop interface with model settings, style blending, appearance retention, and editing instructions.
+- Compact widget mode, always-on-top option, and an animated model loader.
+- FLUX by default, automatic no-gesture warm-up, and immediate mask reveal once ready.
 - Frame alignment: the camera image, gesture and AI result can share the same captured moment.
 - Local video replay, optional recording, and explicitly saved source/result comparisons.
 
-The current application is an OpenCV viewer plus a separate Tk controls window. The compact widget and redesigned desktop screens below are **design concepts**. AI conversion updates asynchronously and is slower than the camera and hand tracking.
+The updated application has a camera-first Tk desktop interface and a compact widget mode, following the earlier mockups. Its UI runs in a separate process from OpenCV capture and inference. AI conversion updates asynchronously and is slower than the camera and hand tracking.
+
+![Implemented GesturePortal desktop interface](docs/assets/desktop-ui.png)
+
+[Updated UI, warm-up behavior and test results](docs/ui-update.md) · [Compact widget](docs/assets/widget-ui.png)
 
 ## How it works
 
@@ -35,7 +41,7 @@ The current application is an OpenCV viewer plus a separate Tk controls window. 
 
 *ComfyUI-style architecture overview with actual video frames and recomputed landmark/mask overlays. Gesture tracking and compositing run in the Python viewer; the styling branch runs in ComfyUI. [Download PNG](docs/assets/workflow-explainer.png) · [Editable SVG](docs/assets/workflow-explainer.svg)*
 
-The viewer keeps one AI request running and one newest frame waiting. Older waiting frames are replaced, and obsolete results are discarded when settings or models change. A separate controls process keeps sliders and dropdowns responsive during generation.
+The viewer keeps one AI request running and one newest frame waiting. Older waiting frames are replaced, and obsolete results are discarded when settings or models change. A separate UI process keeps the camera preview, sliders and dropdowns responsive during generation. At startup and after a model switch, the selected workflow runs before any gesture. The loader disappears when a usable styled frame arrives; the default live reveal uses the current hand mask with the cached result.
 
 FLUX and Qwen receive the camera image as a reference along with an editing instruction. There is no separate captioning LLM or automatic gender detection. Subject preferences are manual. Portrait v2 uses image translation and face refinement without a text prompt.
 
@@ -85,7 +91,10 @@ Default setup downloads Portrait v2 + FLUX. Qwen is optional: after reading its 
 | Key | Action |
 | --- | --- |
 | **1 / 2 / 3** | Portrait v2 / FLUX / Qwen |
-| **H** | Show or hide controls |
+| **H** | Show or hide settings |
+| **W** | Compact widget / full desktop |
+| **R** | Retry a failed model load |
+| **P** | Return to gesture portal |
 | **A** | Full styled view / gesture portal |
 | **D** | Real/styled split comparison |
 | **S** | Toggle captured-frame alignment |
@@ -94,7 +103,7 @@ Default setup downloads Portrait v2 + FLUX. Qwen is optional: after reading its 
 | **Space** | Pause/resume AI |
 | **Q / Esc** | Close |
 
-Give the viewer keyboard focus for these shortcuts. Hold both index fingers up and thumbs inward, with the remaining fingers folded, to form the frame.
+Click the camera preview to give it keyboard focus for these shortcuts. Typing in the instruction field does not trigger them. Hold both index fingers up and thumbs inward, with the remaining fingers folded, to form the frame.
 
 **Style strength** blends the generated image with the source. **Keep original face/colors** apply to Portrait only. For FLUX or Qwen, edit the instruction and press **Apply instruction**; select **Preserve camera appearance**, **Male**, or **Female** as a manual rendering preference. **Save controls** persists preferences; **Reset** restores the selected preset.
 

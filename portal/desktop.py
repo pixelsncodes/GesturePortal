@@ -40,8 +40,10 @@ class DesktopWindow(ControlWindow):
         self.rotation = 0
         self.root = tk.Tk()
         self.root.title('GesturePortal')
-        self.root.geometry('1320x820')
-        self.full_geometry = '1320x820'
+        width = max(960, min(1520, self.root.winfo_screenwidth() - 80))
+        height = max(640, min(900, self.root.winfo_screenheight() - 100))
+        self.full_geometry = f'{width}x{height}'
+        self.root.geometry(self.full_geometry)
         self.root.minsize(960, 640)
         self.root.protocol('WM_DELETE_WINDOW', lambda: self.action(ord('q')))
         t.configure(self.root, ttk)
@@ -103,7 +105,7 @@ class DesktopWindow(ControlWindow):
         self._slider(self.portrait_group, 'shadow_lift', 'Lift dark shadows', 0, .35, .05)
         self.editor_group = ttk.Frame(body)
         self.editor_group.pack(fill='x', pady=(12, 0))
-        self._choice(self.editor_group, 'subject', 'Subject preference', SUBJECT_LABELS)
+        self._choice(self.editor_group, 'subject', 'Subject preference (manual)', SUBJECT_LABELS)
         ttk.Label(self.editor_group, text='Editing instruction').pack(anchor='w', pady=(12, 6))
         self.prompt_text = tk.Text(self.editor_group, height=4, wrap='word', background=t.FIELD, foreground=t.TEXT,
                                    insertbackground=t.ACCENT, font=(t.FONT, 10), relief='flat', padx=10, pady=10,
@@ -112,8 +114,6 @@ class DesktopWindow(ControlWindow):
         self.prompt_button = ttk.Button(self.editor_group, text='Apply instruction', style='Accent.TButton',
                                         command=self.apply_prompt)
         self.prompt_button.pack(fill='x', pady=(8, 0))
-        ttk.Label(self.editor_group, text='Manual preference. No gender detection.', style='Hint.TLabel',
-                  wraplength=286).pack(anchor='w', pady=(8, 0))
         self.message = tk.StringVar(value=saved_notice or 'Settings apply to the next generated frame.')
         # Footer actions are outside the scroll region so they remain reachable.
         settings_footer = ttk.Frame(self.sidebar, padding=16)
@@ -170,6 +170,8 @@ class DesktopWindow(ControlWindow):
 
     def keypress(self, event):
         if event.widget.winfo_class() in ('Text', 'Entry', 'TEntry', 'TCombobox', 'TScale'):
+            return
+        if event.keysym == 'space' and event.widget.winfo_class() in ('TButton', 'TCheckbutton'):
             return
         key = 27 if event.keysym == 'Escape' else 32 if event.keysym == 'space' else ord(event.char) if len(event.char) == 1 else None
         if key == ord('h'):
@@ -280,8 +282,9 @@ class DesktopWindow(ControlWindow):
             return
         canvas.delete('scene')
         if self.latest_image is not None:
-            image = self.latest_image.copy()
-            image.thumbnail((w - 4, h - 4), Image.Resampling.BILINEAR)
+            scale = min((w - 4) / self.latest_image.width, (h - 4) / self.latest_image.height)
+            image = self.latest_image.resize((max(1, round(self.latest_image.width * scale)),
+                                              max(1, round(self.latest_image.height * scale))), Image.Resampling.BILINEAR)
             self.photo = ImageTk.PhotoImage(image, master=self.root)
             canvas.create_image(w / 2, h / 2, image=self.photo, tags='scene')
         else:

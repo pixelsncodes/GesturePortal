@@ -6,7 +6,7 @@
   "camera_fps": 30,
   "mirror": true,
   "result_max_age": 60,
-  "synchronize_feed": true,
+  "synchronize_feed": false,
   "smoothing": 0.55,
   "gesture_hold_seconds": 0.12,
   "tracking_grace_seconds": 0.15,

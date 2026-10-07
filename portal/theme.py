@@ -43,6 +43,9 @@ def configure(root, ttk):
                     bordercolor=BORDER, lightcolor=ACCENT, darkcolor=ACCENT)
     style.configure('Vertical.TScrollbar', background=FIELD, troughcolor=SURFACE,
                     bordercolor=SURFACE, lightcolor=FIELD, darkcolor=FIELD, arrowcolor=MUTED)
+    style.map('Vertical.TScrollbar', background=[('disabled', FIELD), ('active', '#34464e')],
+              lightcolor=[('disabled', FIELD)], darkcolor=[('disabled', FIELD)],
+              arrowcolor=[('disabled', MUTED)])
     style.configure('TCheckbutton', background=SURFACE, foreground=MUTED, focuscolor=ACCENT)
     style.map('TCheckbutton', background=[('active', SURFACE)])
     root.option_add('*TCombobox*Listbox.background', FIELD)

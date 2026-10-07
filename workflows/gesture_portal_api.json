@@ -5,38 +5,164 @@
       "frame_id": "live-frame-supplied-by-portal-client"
     }
   },
-  "14": {
-    "class_type": "GesturePortraitModelLoader",
+  "20": {
+    "class_type": "UNETLoader",
     "inputs": {
-      "model_name": "face_paint_512_v2.pt"
+      "unet_name": "flux-2-klein-4b.safetensors",
+      "weight_dtype": "default"
     }
   },
-  "15": {
-    "class_type": "GesturePortraitStylize",
+  "21": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen_3_4b_fp4_flux2.safetensors",
+      "type": "flux2",
+      "device": "default"
+    }
+  },
+  "22": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "flux2-vae.safetensors"
+    }
+  },
+  "28": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    }
+  },
+  "29": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "31": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "28",
+        0
+      ],
+      "guider": [
+        "27",
+        0
+      ],
+      "sampler": [
+        "29",
+        0
+      ],
+      "sigmas": [
+        "30",
+        0
+      ],
+      "latent_image": [
+        "26",
+        0
+      ]
+    }
+  },
+  "32": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "31",
+        0
+      ],
+      "vae": [
+        "22",
+        0
+      ]
+    }
+  },
+  "33": {
+    "class_type": "GestureEditBlend",
     "inputs": {
       "images": [
+        "32",
+        0
+      ],
+      "source": [
         "4",
         0
       ],
-      "model": [
-        "14",
-        0
-      ],
-      "strength": 0.85,
-      "face_detail": true,
-      "face_likeness": 0.35,
-      "color_preservation": 0.75,
-      "shadow_lift": 0.15
+      "strength": 1.0
     }
   },
   "8": {
     "class_type": "GesturePortalOutput",
     "inputs": {
       "images": [
-        "15",
+        "33",
         0
       ],
       "frame_id": "live-frame-supplied-by-portal-client"
+    }
+  },
+  "23": {
+    "class_type": "CLIPTextEncode",
+    "inputs": {
+      "clip": [
+        "21",
+        0
+      ],
+      "text": "Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style."
+    }
+  },
+  "24": {
+    "class_type": "VAEEncode",
+    "inputs": {
+      "pixels": [
+        "4",
+        0
+      ],
+      "vae": [
+        "22",
+        0
+      ]
+    }
+  },
+  "25": {
+    "class_type": "ReferenceLatent",
+    "inputs": {
+      "conditioning": [
+        "23",
+        0
+      ],
+      "latent": [
+        "24",
+        0
+      ]
+    }
+  },
+  "26": {
+    "class_type": "EmptyFlux2LatentImage",
+    "inputs": {
+      "width": 640,
+      "height": 384,
+      "batch_size": 1
+    }
+  },
+  "27": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "20",
+        0
+      ],
+      "conditioning": [
+        "25",
+        0
+      ]
+    }
+  },
+  "30": {
+    "class_type": "Flux2Scheduler",
+    "inputs": {
+      "steps": 4,
+      "width": 640,
+      "height": 384
     }
   }
 }

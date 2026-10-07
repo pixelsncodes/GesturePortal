@@ -6,7 +6,7 @@ The portal is a compositing effect driven by hands. The image model receives the
 
 `run_portal.py` reads the webcam with OpenCV and uses MediaPipe's local Hand Landmarker in video mode. It tracks two hands and passes landmarks to `portal/geometry.py`, which checks the L-shaped gesture and derives a convex quadrilateral.
 
-`FrameTracker` smooths the outline and uses a short activation hold and tracking grace period. This reduces jitter and brief disappearances. The quadrilateral can tilt with the hands. The compositor feathers inward, retaining the source outside the selected polygon, apart from the displayed frame outline and HUD.
+`FrameTracker` smooths the outline and uses a short activation hold and tracking grace period. This reduces jitter and brief disappearances. The quadrilateral can tilt with the hands. The compositor feathers inward, retaining the source outside the selected polygon, apart from the displayed frame outline. Status and metrics sit outside the camera image in the desktop UI.
 
 ## Full-scene image conversion
 
@@ -16,7 +16,7 @@ Moving the portal changes only which pixels are revealed. It does not reframe th
 
 ### Portrait v2
 
-The custom Portrait loader uses AnimeGANv2's face-paint v2 weights. A full-scene pass provides the styled image. YuNet detects a face for aligned 512 × 512 refinement, which is merged through a face mask. Source-face retention, source-color retention and a modest shadow lift reduce unwanted changes. These are image operations; Portrait has no text conditioning.
+The custom Portrait loader uses AnimeGANv2's face-paint v2 weights. A full-scene pass provides the styled image. YuNet detects a face for aligned 512 Ã— 512 refinement, which is merged through a face mask. Source-face retention, source-color retention and a modest shadow lift reduce unwanted changes. These are image operations; Portrait has no text conditioning.
 
 ### FLUX.2 Klein 4B
 
@@ -34,13 +34,17 @@ The custom `GesturePortalInput` and `GesturePortalOutput` nodes exchange PNG fra
 
 `InferenceWorker` runs generation separately from the camera loop. It retains one active job and one replaceable newest pending frame. Configuration revisions invalidate obsolete results, so an old model's output cannot become the current result after a switch.
 
-The controls window owns its Tk event loop in a separate spawned process. Camera reads, OpenCV events and backend requests therefore cannot freeze Tk input. Slider changes debounce for 350 ms; editing instructions apply explicitly with the button. Preferences can be saved in local `controls.json`.
+The desktop UI owns its Tk event loop in a separate spawned process. Camera reads and backend requests therefore cannot freeze Tk input. A bounded, nonblocking two-frame channel carries preview JPEGs and real readiness/latency state; Tk decodes and letterboxes them in its own process. Full and widget modes reuse the same capture and inference session. Slider changes debounce for 350 ms; editing instructions apply explicitly with the button. Preferences can be saved in local `controls.json`.
+
+## Automatic warm-up
+
+FLUX is the default. Validation and generation run in the inference thread, including retrying loopback connections while the launcher starts ComfyUI. The first real camera frame is submitted without requiring hand detection. The UI shows checking, loading, fresh-frame preparation, ready or error states with an animated loader. A slow first result does not end warm-up until a subsequent usable frame arrives. A model switch clears readiness and results and increments the revision. A failed revision stops submitting until Retry or another selection.
 
 ## Alignment and trade-offs
 
 Each AI result retains its source camera image, gesture quadrilateral and capture time. Alignment mode uses those matching objects together. The portal looks spatially consistent, but visible motion inherits generation latency.
 
-With alignment off, current camera and gesture data are composited with the last completed styled scene. The outline responds immediately; the styled content may lag when the subject or camera moves. Neither mode interpolates generated frames or provides temporal identity locking.
+Alignment is off by default so the first gesture can reveal an image prepared without any gesture. With alignment off, current camera and gesture data are composited with the last completed styled scene. The outline responds immediately; the styled content may lag when the subject or camera moves. Neither mode interpolates generated frames or provides temporal identity locking.
 
 ## Runtime boundaries
 

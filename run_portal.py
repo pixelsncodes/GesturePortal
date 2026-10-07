@@ -99,6 +99,7 @@ def main():
                 panel.sync_model(config)
             notice_until = time.monotonic() + 3
 
+        video_started = time.monotonic()
         while True:
             keys = []
             if panel:
@@ -222,7 +223,7 @@ def main():
             if any(key in (ord('q'), 27) for key in keys):
                 break
             if args.video and not args.headless:
-                time.sleep(max(0, started + frames / fps - time.monotonic()))
+                time.sleep(max(0, video_started + frames / fps - time.monotonic()))
             if args.max_frames and frames >= args.max_frames:
                 break
     finally:

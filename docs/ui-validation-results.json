@@ -1,0 +1,90 @@
+{
+  "all_model_acceptance": {
+    "no_hands_before_warmup": true,
+    "real_gesture_detected": true,
+    "models": {
+      "flux_startup": {
+        "ready_seconds": 1.39,
+        "phases": [
+          "checking",
+          "loading",
+          "ready"
+        ],
+        "loader_rotation_states": 13,
+        "latency_seconds": 1.375
+      },
+      "portrait_switch": {
+        "ready_seconds": 1.187,
+        "phases": [
+          "checking",
+          "loading",
+          "ready"
+        ],
+        "loader_rotation_states": 12,
+        "latency_seconds": 0.469
+      },
+      "qwen_switch": {
+        "ready_seconds": 44.25,
+        "phases": [
+          "checking",
+          "loading",
+          "refreshing",
+          "ready"
+        ],
+        "loader_rotation_states": 15,
+        "latency_seconds": 7.422
+      },
+      "flux_switch": {
+        "ready_seconds": 35.532,
+        "phases": [
+          "checking",
+          "loading",
+          "refreshing",
+          "ready"
+        ],
+        "loader_rotation_states": 15,
+        "latency_seconds": 1.172
+      }
+    },
+    "first_reveal_milliseconds": 17.882,
+    "reveal_uses_cached_no_gesture_frame": true
+  },
+  "final_flux_acceptance": {
+    "no_hands_before_warmup": true,
+    "real_gesture_detected": true,
+    "models": {
+      "flux_startup": {
+        "ready_seconds": 1.469,
+        "phases": [
+          "checking",
+          "loading",
+          "ready"
+        ],
+        "loader_rotation_states": 12,
+        "latency_seconds": 1.422
+      }
+    },
+    "first_reveal_milliseconds": 20.453,
+    "reveal_uses_cached_no_gesture_frame": true
+  },
+  "complete_app_replay": {
+    "frames": 594,
+    "two_hands_detected_frames": 263,
+    "portal_active_frames": 244,
+    "ai_composited_frames": 244,
+    "ai_generated_frames": 21,
+    "processing_seconds": 26.656,
+    "preview_only": false
+  },
+  "webcam_smoke": {
+    "frames": 60,
+    "two_hands_detected_frames": 0,
+    "portal_active_frames": 0,
+    "ai_composited_frames": 0,
+    "ai_generated_frames": 0,
+    "processing_seconds": 10.5,
+    "preview_only": true
+  },
+  "scope": "Local development acceptance tests on RTX 5070 Ti. Replay source includes previously stylized demo frames; not a model quality benchmark.",
+  "first_cold_flux_ready_seconds": 42.515
+}

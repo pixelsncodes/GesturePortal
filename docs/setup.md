@@ -75,15 +75,17 @@ It displays the camera and hand-controlled outline without generating a styled f
 
 ## Camera and alignment
 
-Set `camera` in `config.json` to your webcam's OpenCV index. The default requests 1280 × 720 at 30 fps with mirroring. Actual capture rates depend on the camera; these settings do not promise AI generation at 30 fps.
+Set `camera` in `config.json` to your webcam's OpenCV index. The default requests 1280 Ã— 720 at 30 fps with mirroring. Actual capture rates depend on the camera; these settings do not promise AI generation at 30 fps.
 
-With alignment on, the real frame, gesture mask and styled output come from the same capture. This produces a better match but advances at the AI update rate. Press **S** to use the latest live camera/gesture with the last completed styled frame; movement can then misalign the two feeds.
+FLUX is now the default. At startup or after selecting another model, the animated loader stays visible while the backend loads the workflow and prepares a fresh styled feed. Gesture only when the status says Ready. Model switching can take tens of seconds; controls and the camera remain live. Use Retry model if a load fails.
+
+Alignment is off by default for immediate gesture reveal using the latest styled frame. With alignment on, the real frame, gesture mask and styled output come from the same capture. This produces a better match but advances at the AI update rate. Press **S** to use the latest live camera/gesture with the last completed styled frame; movement can then misalign the two feeds.
 
 Use even front lighting and keep both hands in view. Style strength controls source/result blending. Greater Portrait face/color retention keeps more of the original appearance. For editors, try an instruction that explicitly preserves skin color, age, eye size, hair, glasses, expression and scene composition.
 
 ## Workflows and configuration
 
-`workflows/gesture_portal.json` is the default frontend graph; its `_api.json` counterpart is the API graph. Equivalent pairs are provided for Portrait v2, FLUX and Qwen.
+`workflows/gesture_portal.json` is the default FLUX frontend graph; its `_api.json` counterpart is the API graph. Equivalent pairs are provided for Portrait v2, FLUX and Qwen.
 
 Importing these graphs lets you inspect the pipeline, but their frame IDs are placeholders. The viewer submits actual frames and IDs during streaming. The gesture mask is applied in the viewer, after generation. Changes made in ComfyUI's graph editor do not update the viewer's presets.
 
@@ -93,7 +95,7 @@ To regenerate a graph after changing a preset:
 .\.venv\Scripts\python.exe export_workflow.py --config config.flux.json --output gesture_portal_flux
 ```
 
-Portrait defaults to 768 × 432 with 512 × 512 face refinement. FLUX and Qwen default to 640 × 384; editor canvas dimensions must be divisible by 32, within the viewer's 64–1024 range.
+Portrait defaults to 768 Ã— 432 with 512 Ã— 512 face refinement. FLUX and Qwen default to 640 Ã— 384; editor canvas dimensions must be divisible by 32, within the viewer's 64â€“1024 range.
 
 ## Replay, recording and verification
 
@@ -127,7 +129,7 @@ The viewer runtime skips two tensor-node checks if PyTorch is absent. Run those 
 | New preset appears unchanged | Saved `controls.json` may override it. Use Reset, then Save controls. |
 | Prompt edit has no effect | Use FLUX/Qwen and click Apply instruction. Portrait has no text conditioning. |
 | Face/color controls disabled | Those settings apply only to Portrait; disabled controls in editor modes are intentional. |
-| Slow first image or switch | Loading/offloading and initial compilation can take tens of seconds. Wait for the first result. |
+| Slow first image or switch | Loading/offloading and initial compilation can take tens of seconds. Wait for Ready; the animated loader covers cold loading and fresh-frame preparation. |
 | Face or room drifts | Lower style blend, improve lighting, or strengthen preservation instructions; fidelity is not guaranteed. |
 | Flicker between results | These presets generate individual images and have no temporal video consistency model. |
 
