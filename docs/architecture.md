@@ -54,9 +54,20 @@ use the same settings path. Portrait has a fixed translation style.
 
 ## Alignment and trade-offs
 
-Each AI result retains its source camera image, gesture quadrilateral and capture time. Alignment mode uses those matching objects together. The portal looks spatially consistent, but visible motion inherits generation latency.
+Each AI result retains its source camera image, gesture quadrilateral and capture time. Exact alignment uses those matching objects together. The portal looks spatially consistent, but visible motion inherits generation latency.
 
-Alignment is off by default so the first gesture can reveal an image prepared without any gesture. With alignment off, current camera and gesture data are composited with the last completed styled scene. The outline responds immediately; the styled content may lag when the subject or camera moves. Neither mode interpolates generated frames or provides temporal identity locking.
+Alignment is off by default so the first gesture can reveal an image prepared without any gesture. With alignment off, current camera and gesture data are composited with the last completed styled scene. The outline responds immediately; the styled content may lag when the subject or camera moves.
+
+`FeedRenderer` adds optional Smooth alignment using `MotionAligner`: low-resolution
+backward optical flow maps current-camera pixels to the cached source. The
+source gray image and coordinate grids are cached; the styled image is remapped
+at camera size. Photometric disagreement, excessive displacement and out-of-image
+samples reduce confidence. The current-camera portal mask is multiplied by this
+confidence before blending. Outside-camera pixels remain untouched. New source
+arrays, resolution changes and invalid/stale results reset reference state.
+Exact alignment and raw matched snapshots retain their original behavior.
+These modes do not provide temporal identity locking or new model-generated
+intermediate frames. [Alignment behavior and measurements](alignment.md).
 
 ## Runtime boundaries
 

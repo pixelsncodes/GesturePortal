@@ -91,7 +91,13 @@ Existing installations should refresh viewer dependencies after updating:
 This includes the small WebSocket client used for local progress events; no
 additional image-model weights are required for the style presets.
 
-Alignment is off by default for immediate gesture reveal using the latest styled frame. With alignment on, the real frame, gesture mask and styled output come from the same capture. This produces a better match but advances at the AI update rate. Press **S** to use the latest live camera/gesture with the last completed styled frame; movement can then misalign the two feeds.
+Alignment is Off by default for immediate gesture reveal. Press **S** or click
+**Align** to cycle Off, Smooth and Exact. Smooth keeps the camera and gesture
+live and uses local motion tracking to reposition the latest styled pixels.
+Exact shows the real frame, mask and styled output from the same capture, so
+motion advances at the slower AI update rate. Smooth can distort fast motion
+and adds CPU work; it does not increase model-generation speed.
+[Alignment modes and measurements](alignment.md).
 
 Use even front lighting and keep both hands in view. Style strength controls source/result blending. Greater Portrait face/color retention keeps more of the original appearance. Editor presets follow the current subject's age, features and visible accessories. Avoid adding specific accessory or appearance assumptions to custom instructions unless that is the intended transformation.
 

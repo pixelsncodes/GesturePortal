@@ -36,11 +36,23 @@ def restore_full_frame(styled, layout):
     return cv2.resize(content, (layout.source_width, layout.source_height), interpolation=cv2.INTER_LINEAR)
 
 
-def composite_full_frame(real, anime, quad, feather=4):
+def composite_full_frame(real, anime, quad, feather=4, confidence=None):
     if real.shape != anime.shape:
         raise ValueError('Real and anime feeds must have matching dimensions.')
-    mask = np.zeros(real.shape[:2], np.uint8)
-    cv2.fillConvexPoly(mask, np.rint(quad).astype(np.int32), 255)
-    alpha = np.minimum(cv2.distanceTransform(mask, cv2.DIST_L2, 3) / feather, 1) if feather > 0 else mask / 255.0
+    height, width = real.shape[:2]
+    points = np.rint(quad).astype(np.int32)
+    # One zero-pixel margin retains the full-image inward feather at polygon edges.
+    left, top = np.maximum(points.min(axis=0)-1, 0)
+    right, bottom = np.minimum(points.max(axis=0)+2, [width, height])
+    output = real.copy()
+    if right <= left or bottom <= top:
+        return output
+    mask = np.zeros((bottom-top, right-left), np.uint8)
+    cv2.fillConvexPoly(mask, points-[left, top], 255)
+    alpha = np.minimum(cv2.distanceTransform(mask, cv2.DIST_L2, 3) / feather, 1) if feather > 0 else mask.astype(np.float32) / 255
+    if confidence is not None:
+        alpha = alpha * confidence[top:bottom, left:right]
     alpha = alpha[:, :, None]
-    return np.rint(real * (1 - alpha) + anime * alpha).clip(0, 255).astype(np.uint8)
+    region = np.s_[top:bottom, left:right]
+    output[region] = np.rint(real[region]*(1-alpha)+anime[region]*alpha).clip(0, 255).astype(np.uint8)
+    return output

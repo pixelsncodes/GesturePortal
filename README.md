@@ -16,7 +16,7 @@ The full camera image is converted first. Your gesture controls the reveal mask,
 
 *Actual prototype output, cropped from the supplied recording. The GIF is sampled at 6 fps and retains the original timing; this is not the AI generation rate.*
 
-[Watch the updated desktop recording](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-desktop.mp4) · [Widget video](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-widget.mp4) · [Settings video](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-settings.mp4) · [All nine GIFs and screenshots](docs/gallery.md)
+[Watch the original 11.8-second demo](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal.mp4) · [Download MP4](https://raw.githubusercontent.com/pixelsncodes/GesturePortal/main/docs/assets/GesturePortal.mp4) · [Current UI recordings, all nine GIFs and screenshots](docs/gallery.md)
 
 ## What works today
 
@@ -29,6 +29,7 @@ The full camera image is converted first. Your gesture controls the reveal mask,
 - Nine visual styles on the existing editor: anime, doodle, painted 3D, X-ray skull, paper, clay, glass, blueprint and pixel art.
 - FLUX by default, automatic no-gesture warm-up, and immediate mask reveal once ready.
 - Frame alignment: the camera image, gesture and AI result can share the same captured moment.
+- Smooth alignment keeps the camera/hand frame live and motion-adjusts cached styled pixels locally; exact captured alignment remains available.
 - Local video replay, optional recording, and explicitly saved source/result comparisons.
 
 The updated application has a camera-first Tk desktop interface and a compact widget mode, following the earlier mockups. Its UI runs in a separate process from OpenCV capture and inference. AI conversion updates asynchronously and is slower than the camera and hand tracking.
@@ -108,13 +109,19 @@ Default setup downloads Portrait v2 + FLUX. Qwen is optional: after reading its 
 | **P** | Return to gesture portal |
 | **A** | Full styled view / gesture portal |
 | **D** | Real/styled split comparison |
-| **S** | Toggle captured-frame alignment |
+| **S** | Cycle alignment: Off → Smooth → Exact |
 | **[ / ]** | Decrease/increase style blending |
 | **C** | Save a matched source/result comparison locally |
 | **Space** | Pause/resume AI |
 | **Q / Esc** | Close |
 
 Click the camera preview to give it keyboard focus for these shortcuts. Typing in the instruction field does not trigger them. Hold both index fingers up and thumbs inward, with the remaining fingers folded, to form the frame.
+
+**Smooth align** keeps live camera motion and approximates where the latest
+styled pixels should move. **Exact align** shows the source, mask and styled
+image from one captured moment, so visible motion follows the slower AI rate.
+The footer separates camera FPS from AI updates/sec. Neither option speeds up
+model generation. [Alignment modes and trade-offs](docs/alignment.md).
 
 **Style strength** blends the generated image with the source. **Keep original face/colors** apply to Portrait only. For FLUX or Qwen, choose a **Visual style**, or open **Customize instruction** and press **Apply instruction** after editing. Select **Preserve camera appearance**, **Male**, or **Female** as a manual rendering preference. **Save settings** persists preferences; **Reset** restores the selected model's defaults. Use 100% style strength for fully monochrome presets.
 

@@ -38,7 +38,7 @@ Both use the actual camera image as a reference. Correct VAEs, native conditioni
 
 The development checks cover gesture geometry, source pixels outside the mask, full-frame letterboxing/restoration, matched canvas dimensions, reference conditioning, schedule behavior, newest-frame replacement, obsolete-result rejection and responsive Windows controls.
 
-The updated suite contains 44 checks across the viewer and ComfyUI runtimes: 42 run in the viewer environment, and two PyTorch-dependent editor checks run with ComfyUI's Python. These validate implementation behavior, not universal image quality.
+The updated suite contains 51 checks across the viewer and ComfyUI runtimes: 49 run in the viewer environment, and two PyTorch-dependent editor checks run with ComfyUI's Python. These validate implementation behavior, not universal image quality.
 
 Local comparisons used the same raw webcam image across models. Warm editor measurements used only one to three repeats; they are small development samples. A separate 298-frame reference-video replay checked the live generation/compositing path and model switching. Parts of that reference already contained styled output, so the replay is not a fair quality benchmark.
 
@@ -64,5 +64,12 @@ forcing an adult. Exact legacy built-in prompts migrate automatically, while
 custom prompts remain intact. All nine updated presets were checked with a
 supplied no-glasses image, and GIFs/current UI videos were recorded through
 real local FLUX inference using the camera portion of the earlier recording.
+
+Feedback about Align's low visible frame rate led to a separate Smooth mode:
+the current camera and gesture stay live while CPU optical flow motion-adjusts
+the cached styled scene. Exact captured alignment remains available, and the UI
+reports camera FPS separately from AI updates. Motion assistance improves display
+movement without accelerating inference or guaranteeing temporal consistency.
+[Alignment implementation and validation](alignment.md).
 
 Improving portable installation and evaluating temporal consistency remain future work.

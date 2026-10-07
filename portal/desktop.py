@@ -310,10 +310,12 @@ class DesktopWindow(ControlWindow):
                 self.message.set('Settings apply to the next generated frame.')
         if status.get('notice'):
             self.message.set(status['notice'])
-        self.metrics.set(f"{status.get('ai_fps', 0):.1f} AI updates/s  ·  {status.get('latency', 0)*1000:.0f} ms  ·  "
+        preview = f"{status['preview_fps']:.0f} camera fps  ·  " if 'preview_fps' in status else ''
+        self.metrics.set(preview + f"{status.get('ai_fps', 0):.1f} AI updates/s  ·  {status.get('latency', 0)*1000:.0f} ms  ·  "
                          + ('Make two L shapes to open the portal' if not self.compact else 'Local inference'))
         self.pause_button.configure(text='Resume' if status.get('paused') else 'Pause')
-        self.align_button.configure(text='Align: on' if status.get('synchronize') else 'Align: off')
+        alignment = status.get('alignment', 'exact' if status.get('synchronize') else 'off')
+        self.align_button.configure(text={'off': 'Align: off', 'smooth': 'Align: smooth', 'exact': 'Align: exact'}[alignment])
         self.save_button.configure(state='normal' if status.get('fresh') and not status.get('paused') else 'disabled')
         selected = {'portal': 'Portal', 'anime': 'Full style', 'split': 'Split'}.get(status.get('view'), 'Portal')
         for label, button in self.view_buttons.items():

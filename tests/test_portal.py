@@ -19,6 +19,21 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class GeometryTests(unittest.TestCase):
+    def test_bounded_compositing_matches_full_scene_feather_for_tilted_and_clipped_masks(self):
+        rng = np.random.default_rng(14)
+        real = rng.integers(0, 256, (80, 120, 3), dtype=np.uint8)
+        styled = rng.integers(0, 256, real.shape, dtype=np.uint8)
+        confidence = rng.random(real.shape[:2], dtype=np.float32)
+        for quad in (np.float32([[15, 10], [90, 25], [105, 60], [20, 70]]),
+                     np.float32([[-10, -5], [115, 0], [119, 75], [0, 70]])):
+            mask = np.zeros(real.shape[:2], np.uint8)
+            cv2.fillConvexPoly(mask, np.rint(quad).astype(np.int32), 255)
+            alpha = np.minimum(cv2.distanceTransform(mask, cv2.DIST_L2, 3)/4, 1)*confidence
+            alpha = alpha[:, :, None]
+            expected = np.rint(real*(1-alpha)+styled*alpha).clip(0, 255).astype(np.uint8)
+            actual = composite_full_frame(real, styled, quad, 4, confidence)
+            self.assertTrue(np.array_equal(actual, expected))
+
     def test_full_feed_mask_uses_scene_coordinates_without_stretching(self):
         real = np.zeros((80, 120, 3), np.uint8)
         anime = np.zeros_like(real)

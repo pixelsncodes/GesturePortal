@@ -1,0 +1,37 @@
+{
+  "scope": "Real local FLUX inference with original camera replay seconds 9\u201315. Hand masks precomputed with MediaPipe. Render-only timings exclude tracking, capture and UI. Playback paced at 30 fps; inference updates independently. No generated frames interpolated by an AI model.",
+  "modes": {
+    "off": {
+      "camera_frames": 181,
+      "active_portal_frames": 69,
+      "generated_images": 5,
+      "elapsed_seconds": 6.016,
+      "distinct_outside_camera_frames_while_active": 60,
+      "render_median_ms": 6.366,
+      "render_p95_ms": 8.724
+    },
+    "smooth": {
+      "camera_frames": 181,
+      "active_portal_frames": 69,
+      "generated_images": 5,
+      "elapsed_seconds": 6.031,
+      "distinct_outside_camera_frames_while_active": 60,
+      "render_median_ms": 16.975,
+      "render_p95_ms": 25.021
+    },
+    "exact": {
+      "camera_frames": 181,
+      "active_portal_frames": 8,
+      "generated_images": 5,
+      "elapsed_seconds": 6.0,
+      "distinct_outside_camera_frames_while_active": 1,
+      "render_median_ms": 9.235,
+      "render_p95_ms": 9.725
+    }
+  },
+  "smooth_1280x720_render_only": {
+    "median_ms": 29.561,
+    "p95_ms": 37.645,
+    "repeats": 40
+  }
+}

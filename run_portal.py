@@ -9,7 +9,7 @@ import numpy as np
 
 from portal.client import InferenceWorker
 from portal.geometry import FrameTracker, hand_quad
-from portal.view import render_feed
+from portal.view import FeedRenderer, ALIGNMENT_MODES, alignment_mode
 from portal.snapshot import save_pair
 from portal.controls import ControlPanel, apply_settings
 from portal.workflow import make_workflow
@@ -70,7 +70,9 @@ def main():
         tracker = FrameTracker(config["smoothing"], config["gesture_hold_seconds"], config["tracking_grace_seconds"])
         paused, last_ms = False, -1
         view = 'portal'
-        synchronize = config.get('synchronize_feed', True)
+        alignment = alignment_mode(config)
+        renderer = FeedRenderer()
+        preview_fps, previous_capture = 0.0, None
         notice, notice_until, last_switch = '', 0.0, 0.0
         profiles = {ord('1'): 'config.portrait-v2.json', ord('2'): 'config.flux.json',
                     ord('3'): 'config.qwen.json'}
@@ -127,6 +129,10 @@ def main():
             if not ok:
                 break
             captured = time.monotonic()
+            if previous_capture is not None:
+                instantaneous = 1/max(1e-6, captured-previous_capture)
+                preview_fps = instantaneous if preview_fps == 0 else .85*preview_fps+.15*instantaneous
+            previous_capture = captured
             if not args.video and config["mirror"]:
                 frame = cv2.flip(frame, 1)
             if args.source_rect:
@@ -160,8 +166,8 @@ def main():
                 status = "Tracking preview" if worker is None else "Warming up / waiting for fresh anime feed"
             activated = False
             if not paused:
-                display, display_quad, activated = render_feed(frame, quad, result, captured, config,
-                                                                view, synchronize, tracker.epoch)
+                display, display_quad, activated = renderer.render(frame, quad, result, captured, config,
+                                                                  view, alignment, tracker.epoch)
                 composited += int(activated)
             if display_quad is not None and not paused and view == 'portal':
                 cv2.polylines(display, [np.rint(display_quad).astype(np.int32)], True, (180, 230, 80), 2, cv2.LINE_AA)
@@ -174,7 +180,8 @@ def main():
             readiness = {'phase': 'preview', 'ready': True, 'elapsed': 0} if worker is None else worker.readiness()
             if panel:
                 panel.show_frame(display, dict(readiness, active=activated, paused=paused,
-                                               view=view, synchronize=synchronize, ai_fps=ai_fps, latency=latency,
+                                               view=view, synchronize=alignment == 'exact', alignment=alignment,
+                                               preview_fps=preview_fps, ai_fps=ai_fps, latency=latency,
                                                fresh=result is not None and captured - result[-1] <= config['result_max_age'],
                                                notice=notice if time.monotonic() < notice_until else ''))
             if args.record:
@@ -199,7 +206,11 @@ def main():
                 if key == ord('d'):
                     view = 'portal' if view == 'split' else 'split'
                 if key == ord('s'):
-                    synchronize = not synchronize
+                    alignment = ALIGNMENT_MODES[(ALIGNMENT_MODES.index(alignment)+1) % len(ALIGNMENT_MODES)]
+                    notice = {'off': 'Align off: live camera with the latest styled frame',
+                              'smooth': 'Smooth align: live motion; approximate image matching',
+                              'exact': 'Exact align: matching captured frames; motion follows AI speed'}[alignment]
+                    notice_until = time.monotonic()+4
                 if key == ord('h') and panel:
                     panel.toggle()
                 if key in (ord('['), ord(']')) and worker is not None and config.get('engine') in ('portrait', 'flux', 'qwen'):

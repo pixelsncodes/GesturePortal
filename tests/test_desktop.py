@@ -59,6 +59,13 @@ class DesktopTests(unittest.TestCase):
         window.update_status({'phase': 'ready', 'fresh': True})
         self.assertFalse(window.retry_button.winfo_manager())
 
+    def test_alignment_labels_distinguish_live_motion_from_exact_capture(self):
+        for mode in ('off', 'smooth', 'exact'):
+            self.window.update_status({'phase': 'ready', 'alignment': mode, 'preview_fps': 29.4, 'ai_fps': .8})
+            self.assertEqual(self.window.align_button.cget('text'), f'Align: {mode}')
+            self.assertIn('29 camera fps', self.window.metrics.get())
+            self.assertIn('0.8 AI updates/s', self.window.metrics.get())
+
     def test_style_dropdown_updates_instruction_and_customization_is_reachable(self):
         window = self.window
         window.style_var.set('Black ink doodle')
