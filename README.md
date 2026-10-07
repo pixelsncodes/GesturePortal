@@ -12,11 +12,11 @@ The full camera image is converted first. Your gesture controls the reveal mask,
 
 ## See it working
 
-![Actual GesturePortal recording: hands reveal an anime version of the camera feed](docs/assets/demo-portal.gif)
+![Painted 3D style and gesture reveal in the updated GesturePortal](docs/assets/style-painted_3d.gif)
 
-*Actual prototype output, cropped from the supplied recording. The GIF is sampled at 6 fps and retains the original timing; this is not the AI generation rate.*
+*Actual local FLUX output from the updated app, using the creator's camera recording as replay input. The GIF shows full-style output followed by the hand-controlled reveal. Playback is 10 fps; AI updates are slower and are not accelerated.*
 
-[Watch the full 11.8-second MP4](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal.mp4) · [Download the video](https://raw.githubusercontent.com/pixelsncodes/GesturePortal/main/docs/assets/GesturePortal.mp4) · [Screenshots and desktop demo](docs/gallery.md)
+[Watch the updated desktop recording](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-desktop.mp4) · [Widget video](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-widget.mp4) · [Settings video](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-settings.mp4) · [All nine GIFs and screenshots](docs/gallery.md)
 
 ## What works today
 
@@ -41,7 +41,9 @@ The updated application has a camera-first Tk desktop interface and a compact wi
 
 Choose **Visual style** in Settings with FLUX or Qwen selected. The nine presets
 reuse the image editor; no additional model downloads are needed. The comparison
-above was generated locally with FLUX from one original camera frame. X-ray is
+above was generated locally with FLUX from one original camera frame. Presets
+follow the current person's age and visible accessories rather than assuming
+the creator's appearance. X-ray is
 an imagined skull effect. [Style guide and loading progress](docs/styles.md).
 
 ## How it works

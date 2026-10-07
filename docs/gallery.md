@@ -8,11 +8,33 @@
 
 ![Backend component progress](assets/component-loading-ui.png)
 
-The comparison uses the same unstylized camera frame from the beginning of the
-supplied recording, rendered through the local four-step FLUX editor. The two UI
+The comparison uses the same unstylized camera frame at 9 seconds in the
+supplied 42.8-second recording, rendered through the local four-step FLUX editor. The two UI
 captures show the implemented app using that source and its generated doodle.
 These are real local-model outputs and app captures. They demonstrate a single
 frame per style rather than continuous video quality. [Style guide](styles.md).
+
+## Animated examples of every style
+
+Each GIF records actual asynchronous FLUX updates in the implemented app. It
+starts with full-style output, then switches to the hand-controlled portal.
+The same original camera segment is replayed at its original timing. GIF
+playback is 10 fps; the model generated four or five images during each 6.1-second
+clip. These are replay demonstrations, not nine simultaneous webcam sessions.
+
+| Anime film | Black ink doodle | Painted 3D animation |
+| --- | --- | --- |
+| ![Anime film demo](assets/style-anime.gif) | ![Black ink doodle demo](assets/style-doodle.gif) | ![Painted 3D animation demo](assets/style-painted_3d.gif) |
+
+| X-ray skull | Layered paper cutout | Clay stop-motion |
+| --- | --- | --- |
+| ![X-ray skull demo](assets/style-xray.gif) | ![Layered paper cutout demo](assets/style-paper.gif) | ![Clay stop-motion demo](assets/style-clay.gif) |
+
+| Stained glass mosaic | Cyanotype blueprint | Retro pixel art |
+| --- | --- | --- |
+| ![Stained glass demo](assets/style-glass.gif) | ![Cyanotype blueprint demo](assets/style-blueprint.gif) | ![Retro pixel art demo](assets/style-pixel.gif) |
+
+[Current recording results and source details](media-validation-results.json).
 
 ## Implemented desktop and widget
 
@@ -22,7 +44,37 @@ frame per style rather than continuous video quality. [Style guide](styles.md).
 
 ![Animated model-loading state](assets/loader-ui.png)
 
-Actual renders of the implemented Tk interface during local FLUX acceptance tests using replayed frames from the supplied demo. These are UI verification captures; the replay already includes stylized content and is not a fresh raw-webcam quality comparison. [Update and validation](ui-update.md).
+Actual captures of the implemented Tk interface during local FLUX replay tests.
+The source is the original camera region before the old recording's first anime
+result. Old mint frame outlines remain in the replay input; gesture masks are
+recomputed locally. These captures show current app behavior, including normal
+inference delay and possible pose mismatch. [Update and validation](ui-update.md).
+
+### Current UI videos
+
+| Recording | Content |
+| --- | --- |
+| [Full desktop MP4](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-desktop.mp4) | Actual UI with style preparation, all nine styles and live gesture compositing |
+| [Widget MP4](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-widget.mp4) | Compact portal view with continuing local inference |
+| [Settings MP4](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-settings.mp4) | Style controls and expansion/scrolling of the custom instruction editor |
+
+![Compact widget replay](assets/widget-demo.gif)
+
+### Settings and custom instructions
+
+![Current settings](assets/settings-ui.png)
+
+![Expanded custom instruction editor](assets/custom-instruction-ui.png)
+
+### Appearance regression check
+
+![No-glasses camera reference and nine revised style results](assets/appearance-preservation.jpg)
+
+All nine styles received the same supplied no-glasses camera image. This checks
+the updated accessory-neutral instructions with the creator's image, not a
+child's image. Exact old built-in prompts are migrated; custom prompts remain
+under user control. Image-model likeness and accessory preservation can still
+vary.
 
 ## Earlier app recording
 
@@ -109,7 +161,11 @@ All three screens are AI-generated **design concepts**. They illustrate a possib
 | `promo.png`, `mockup-*.png` | Built-in image generation using the second screenshot as reference |
 | `promo.jpg`, `mockup-*.jpg` | Smaller web exports of the generated PNG originals |
 | `workflow-explainer.png`, `.svg` | Directly drawn architecture diagram; actual recording previews at 0, 1.8, 3, 5 and 11 s; locally recomputed hand landmarks and mask |
-| `style-comparison.jpg` | Nine actual local FLUX results from the same original camera frame at 0 s; 640 × 384 inference restored to 860 × 469, arranged into a comparison sheet |
-| `styles-ui.png`, `component-loading-ui.png` | Captures of the implemented GesturePortal window during the local style/progress acceptance test |
+| `style-comparison.jpg` | Original camera frame at 9 s plus nine actual FLUX results; 640 × 384 inference restored to 860 × 469 |
+| `appearance-preservation.jpg` | Creator's supplied no-glasses camera image plus the nine revised local FLUX style results |
+| `style-*.gif` | Actual viewer output during local replay inference; source seconds 9–15 from `2026-10-06 21-52-07.mp4`, camera crop only, 10 fps, original timing |
+| `GesturePortal-desktop.mp4`, `-widget.mp4`, `-settings.mp4` | Captures of the implemented app's own window during local inference/replay and settings interaction; H.264 exports, no audio |
+| `desktop-ui.png`, `widget-ui.png`, `styles-ui.png`, `component-loading-ui.png`, `loader-ui.png`, `settings-ui.png`, `custom-instruction-ui.png`, `style-*-ui.png` | Current implemented Tk window captured directly, including if another app overlaps it |
+| `widget-demo.gif` | 10 fps derivative of the current compact-widget recording |
 
 Exact artwork prompts are preserved in [artwork-prompts.json](artwork-prompts.json). Promotional image generation was separate from the application's entirely local inference workflow.

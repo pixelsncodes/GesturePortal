@@ -1,0 +1,189 @@
+{
+  "source": "output/2026-10-06 21-52-07.mp4",
+  "source_seconds": [
+    9,
+    15
+  ],
+  "source_crop": [
+    308,
+    154,
+    1612,
+    880
+  ],
+  "recording_fps": 10,
+  "scope": "Implemented Tk UI recorded with actual asynchronous FLUX inference; original timing. Camera footage is replayed. Old mint frame outlines occur in the source; MediaPipe masks are recomputed. No previous styled result is included in this source segment.",
+  "styles": {
+    "anime": {
+      "warmup_seconds": 1.62,
+      "camera_frames": 61,
+      "generated_images_during_replay": 5,
+      "portal_frames": 23
+    },
+    "doodle": {
+      "warmup_seconds": 2.78,
+      "camera_frames": 61,
+      "generated_images_during_replay": 5,
+      "portal_frames": 23
+    },
+    "painted_3d": {
+      "warmup_seconds": 2.7,
+      "camera_frames": 61,
+      "generated_images_during_replay": 5,
+      "portal_frames": 23
+    },
+    "xray": {
+      "warmup_seconds": 2.47,
+      "camera_frames": 61,
+      "generated_images_during_replay": 4,
+      "portal_frames": 23
+    },
+    "paper": {
+      "warmup_seconds": 1.59,
+      "camera_frames": 61,
+      "generated_images_during_replay": 4,
+      "portal_frames": 23
+    },
+    "clay": {
+      "warmup_seconds": 1.72,
+      "camera_frames": 61,
+      "generated_images_during_replay": 4,
+      "portal_frames": 23
+    },
+    "glass": {
+      "warmup_seconds": 1.56,
+      "camera_frames": 61,
+      "generated_images_during_replay": 4,
+      "portal_frames": 23
+    },
+    "blueprint": {
+      "warmup_seconds": 1.58,
+      "camera_frames": 61,
+      "generated_images_during_replay": 5,
+      "portal_frames": 23
+    },
+    "pixel": {
+      "warmup_seconds": 2.8,
+      "camera_frames": 61,
+      "generated_images_during_replay": 5,
+      "portal_frames": 23
+    }
+  },
+  "desktop_recording_seconds": 70.9,
+  "media_checks": {
+    "style-anime.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1662351
+    },
+    "style-doodle.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1708820
+    },
+    "style-painted_3d.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1722260
+    },
+    "style-xray.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1557445
+    },
+    "style-paper.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1607560
+    },
+    "style-clay.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1621316
+    },
+    "style-glass.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1714963
+    },
+    "style-blueprint.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1678680
+    },
+    "style-pixel.gif": {
+      "frames": 61,
+      "duration_seconds": 6.1,
+      "dimensions": [
+        640,
+        348
+      ],
+      "bytes": 1535455
+    },
+    "GesturePortal-desktop.mp4": {
+      "frames": 709,
+      "duration_seconds": 70.9,
+      "dimensions": [
+        1280,
+        800
+      ],
+      "bytes": 2535047
+    },
+    "GesturePortal-widget.mp4": {
+      "frames": 30,
+      "duration_seconds": 3.0,
+      "dimensions": [
+        640,
+        520
+      ],
+      "bytes": 98815
+    },
+    "GesturePortal-settings.mp4": {
+      "frames": 60,
+      "duration_seconds": 6.0,
+      "dimensions": [
+        1280,
+        800
+      ],
+      "bytes": 162707
+    }
+  },
+  "regression_checks": {
+    "viewer_ui": 42,
+    "comfy_tensor": 2,
+    "no_glasses_styles_rendered": 9,
+    "no_glasses_source": "creator-supplied adult camera screenshot; no child image used",
+    "old_preset_migration": "exact built-in instructions refreshed; custom instructions unchanged"
+  }
+}

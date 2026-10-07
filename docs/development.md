@@ -38,7 +38,7 @@ Both use the actual camera image as a reference. Correct VAEs, native conditioni
 
 The development checks cover gesture geometry, source pixels outside the mask, full-frame letterboxing/restoration, matched canvas dimensions, reference conditioning, schedule behavior, newest-frame replacement, obsolete-result rejection and responsive Windows controls.
 
-The updated suite contains 42 checks across the viewer and ComfyUI runtimes: 40 run in the viewer environment, and two PyTorch-dependent editor checks run with ComfyUI's Python. These validate implementation behavior, not universal image quality.
+The updated suite contains 44 checks across the viewer and ComfyUI runtimes: 42 run in the viewer environment, and two PyTorch-dependent editor checks run with ComfyUI's Python. These validate implementation behavior, not universal image quality.
 
 Local comparisons used the same raw webcam image across models. Warm editor measurements used only one to three repeats; they are small development samples. A separate 298-frame reference-video replay checked the live generation/compositing path and model switching. Parts of that reference already contained styled output, so the replay is not a fair quality benchmark.
 
@@ -56,5 +56,13 @@ the 0–100% loader. All nine styles were rendered with FLUX from the same origi
 camera frame, including a revised clay instruction to discourage invented hand
 gestures. This single-frame check demonstrates style differences rather than
 guaranteeing identity or video consistency. [Styles and validation](styles.md).
+
+Feedback from a second camera user exposed an unconditional accessory in the
+pixel-art instruction. The active presets now describe the current subject and
+visible accessories generically; manual subject options retain age rather than
+forcing an adult. Exact legacy built-in prompts migrate automatically, while
+custom prompts remain intact. All nine updated presets were checked with a
+supplied no-glasses image, and GIFs/current UI videos were recorded through
+real local FLUX inference using the camera portion of the earlier recording.
 
 Improving portable installation and evaluating temporal consistency remain future work.

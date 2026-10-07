@@ -93,7 +93,7 @@ additional image-model weights are required for the style presets.
 
 Alignment is off by default for immediate gesture reveal using the latest styled frame. With alignment on, the real frame, gesture mask and styled output come from the same capture. This produces a better match but advances at the AI update rate. Press **S** to use the latest live camera/gesture with the last completed styled frame; movement can then misalign the two feeds.
 
-Use even front lighting and keep both hands in view. Style strength controls source/result blending. Greater Portrait face/color retention keeps more of the original appearance. For editors, try an instruction that explicitly preserves skin color, age, eye size, hair, glasses, expression and scene composition.
+Use even front lighting and keep both hands in view. Style strength controls source/result blending. Greater Portrait face/color retention keeps more of the original appearance. Editor presets follow the current subject's age, features and visible accessories. Avoid adding specific accessory or appearance assumptions to custom instructions unless that is the intended transformation.
 
 ## Workflows and configuration
 

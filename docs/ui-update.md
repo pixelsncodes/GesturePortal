@@ -51,10 +51,14 @@ Development machine: Core i9, RTX 5070 Ti 16 GB, 32 GB RAM and Logitech webcam.
 
 [Machine-readable results](ui-validation-results.json)
 
-Screenshots show the implemented UI with local FLUX output from replayed demo
-frames. Some replay input was already stylized; this validates integration and
-layout, not improvement in anime likeness or a fresh raw-webcam quality test.
-The original recording and generated mockups remain in the gallery for context.
+The earlier acceptance run used replayed demo frames, some already stylized;
+it validated integration and layout rather than improved likeness. The original
+recording and generated mockups remain in the gallery for context.
+
+The screenshots on this page have since been refreshed from the current
+style/appearance update. Their source is an original camera segment before
+the recorded anime conversion appears; the earlier test observations above
+retain their original scope. [Current GIFs and UI recordings](gallery.md).
 
 The pre-UI full backup remains intact. Changes are saved as separate backend,
 desktop and validation Git checkpoints on `ui-warmup-desktop`.
