@@ -84,7 +84,6 @@ class InferenceWorker:
     def __init__(self, config):
         self.config = config
         self.client = ComfyClient(config)
-        self.client.check()
         self.condition = threading.Condition()
         self.stopping = threading.Event()
         self.pending = None
@@ -94,11 +93,18 @@ class InferenceWorker:
         self.latency = 0.0
         self.completed = 0
         self.revision = 0
+        self.checked_revision = None
+        self.failed_revision = None
+        self.phase = 'checking'
+        self.ready = False
+        self.phase_started = time.monotonic()
         self.thread = threading.Thread(target=self.run, daemon=True, name="comfy-inference")
         self.thread.start()
 
     def submit(self, frame, quad, epoch, captured):
         with self.condition:
+            if self.failed_revision == self.revision:
+                return
             self.pending = (frame.copy(), None if quad is None else quad.copy(), epoch, captured,
                             dict(self.config), self.revision)
             self.condition.notify()
@@ -111,26 +117,33 @@ class InferenceWorker:
     def select(self, config, validate=True):
         if config['comfy_url'].rstrip('/') != self.client.url:
             raise ValueError('Live model switching must use the same local backend.')
-        # Validation uses its own session, independent of the in-flight job.
-        if validate:
-            validator = ComfyClient(config)
-            try:
-                validator.check()
-            finally:
-                validator.session.close()
-        else:
-            # Only scalar controls/prompts of an already-validated graph use this path.
-            make_workflow(config, '0' * 32)
+        # HTTP validation belongs to the inference thread, never the camera/UI loop.
+        make_workflow(config, '0' * 32)
         with self.condition:
+            checked = self.checked_revision == self.revision and not validate
             self.config = dict(config)
             self.revision += 1
+            self.checked_revision = self.revision if checked else None
             self.pending = self.result = None
             self.ai_fps = self.latency = 0.0
             self.error = None
+            self.failed_revision = None
+            self.ready = False
+            self.phase = 'loading' if checked else 'checking'
+            self.phase_started = time.monotonic()
+            self.condition.notify_all()
 
     def snapshot(self):
         with self.condition:
             return self.result, self.error, self.ai_fps, self.latency
+
+    def readiness(self):
+        with self.condition:
+            return {'phase': self.phase, 'ready': self.ready, 'error': self.error,
+                    'revision': self.revision, 'elapsed': time.monotonic() - self.phase_started}
+
+    def retry(self):
+        self.select(dict(self.config))
 
     def run(self):
         previous = None
@@ -146,6 +159,18 @@ class InferenceWorker:
             if started - captured > config["result_max_age"]:
                 continue
             try:
+                if self.checked_revision != revision:
+                    validator = ComfyClient(config)
+                    try:
+                        validator.check()
+                    finally:
+                        if hasattr(validator, 'session'):
+                            validator.session.close()
+                    with self.condition:
+                        if revision != self.revision:
+                            continue
+                        self.checked_revision = revision
+                        self.phase = 'loading'
                 canvas, layout = prepare_full_frame(frame, config["inference_width"], config["inference_height"])
                 styled = self.client.generate(canvas, self.stopping, config)
                 if styled is None:
@@ -155,8 +180,12 @@ class InferenceWorker:
                 with self.condition:
                     if revision == self.revision:
                         self.result = (styled, frame, quad, epoch, captured)
+                        # The cold-load image may already be stale. Keep the loader until
+                        # a fresh follow-up image is available; a finished graph is not enough.
+                        self.ready = finished - captured <= config['result_max_age']
+                        self.phase = 'ready' if self.ready else 'refreshing'
                         self.latency = finished - captured
-                        self.ai_fps = 0 if previous is None or previous_revision != revision else 1 / (finished - previous)
+                        self.ai_fps = 0 if previous is None or previous_revision != revision else 1 / max(1e-6, finished - previous)
                         previous, previous_revision = finished, revision
                     self.completed += 1
                     self.condition.notify_all()
@@ -164,7 +193,11 @@ class InferenceWorker:
                 with self.condition:
                     if revision == self.revision:
                         self.error = str(error)
-                        break
+                        self.phase = 'error'
+                        self.ready = False
+                        self.failed_revision = revision
+                        self.pending = self.result = None
+                        self.condition.notify_all()
             self.stopping.wait(max(0, 1 / config["max_ai_fps"] - (time.monotonic() - started)))
 
     def close(self):
