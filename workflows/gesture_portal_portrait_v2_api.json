@@ -1,0 +1,42 @@
+{
+  "4": {
+    "class_type": "GesturePortalInput",
+    "inputs": {
+      "frame_id": "live-frame-supplied-by-portal-client"
+    }
+  },
+  "14": {
+    "class_type": "GesturePortraitModelLoader",
+    "inputs": {
+      "model_name": "face_paint_512_v2.pt"
+    }
+  },
+  "15": {
+    "class_type": "GesturePortraitStylize",
+    "inputs": {
+      "images": [
+        "4",
+        0
+      ],
+      "model": [
+        "14",
+        0
+      ],
+      "strength": 0.85,
+      "face_detail": true,
+      "face_likeness": 0.35,
+      "color_preservation": 0.75,
+      "shadow_lift": 0.15
+    }
+  },
+  "8": {
+    "class_type": "GesturePortalOutput",
+    "inputs": {
+      "images": [
+        "15",
+        0
+      ],
+      "frame_id": "live-frame-supplied-by-portal-client"
+    }
+  }
+}

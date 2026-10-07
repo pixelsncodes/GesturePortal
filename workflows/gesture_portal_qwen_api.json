@@ -1,0 +1,156 @@
+{
+  "4": {
+    "class_type": "GesturePortalInput",
+    "inputs": {
+      "frame_id": "live-frame-supplied-by-portal-client"
+    }
+  },
+  "20": {
+    "class_type": "UNETLoader",
+    "inputs": {
+      "unet_name": "Qwen-Image-2.1-viggle-turbo-v0.3-6step-int8_convrot.safetensors",
+      "weight_dtype": "default"
+    }
+  },
+  "21": {
+    "class_type": "CLIPLoader",
+    "inputs": {
+      "clip_name": "qwen3vl_8b_int8_convrot.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    }
+  },
+  "22": {
+    "class_type": "VAELoader",
+    "inputs": {
+      "vae_name": "qwen_image_2.1_vae_bf16.safetensors"
+    }
+  },
+  "28": {
+    "class_type": "RandomNoise",
+    "inputs": {
+      "noise_seed": 42
+    }
+  },
+  "29": {
+    "class_type": "KSamplerSelect",
+    "inputs": {
+      "sampler_name": "euler"
+    }
+  },
+  "31": {
+    "class_type": "SamplerCustomAdvanced",
+    "inputs": {
+      "noise": [
+        "28",
+        0
+      ],
+      "guider": [
+        "27",
+        0
+      ],
+      "sampler": [
+        "29",
+        0
+      ],
+      "sigmas": [
+        "30",
+        0
+      ],
+      "latent_image": [
+        "23",
+        2
+      ]
+    }
+  },
+  "32": {
+    "class_type": "VAEDecode",
+    "inputs": {
+      "samples": [
+        "31",
+        0
+      ],
+      "vae": [
+        "22",
+        0
+      ]
+    }
+  },
+  "33": {
+    "class_type": "GestureEditBlend",
+    "inputs": {
+      "images": [
+        "32",
+        0
+      ],
+      "source": [
+        "4",
+        0
+      ],
+      "strength": 1.0
+    }
+  },
+  "8": {
+    "class_type": "GesturePortalOutput",
+    "inputs": {
+      "images": [
+        "33",
+        0
+      ],
+      "frame_id": "live-frame-supplied-by-portal-client"
+    }
+  },
+  "23": {
+    "class_type": "TextEncodeQwenImage21",
+    "inputs": {
+      "clip": [
+        "21",
+        0
+      ],
+      "prompt": "Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style.",
+      "negative_prompt": "",
+      "vae": [
+        "22",
+        0
+      ],
+      "resolution": 0,
+      "images.image_1": [
+        "4",
+        0
+      ]
+    }
+  },
+  "26": {
+    "class_type": "QwenImage21Cache",
+    "inputs": {
+      "model": [
+        "20",
+        0
+      ],
+      "device": "auto",
+      "dtype": "int8"
+    }
+  },
+  "27": {
+    "class_type": "BasicGuider",
+    "inputs": {
+      "model": [
+        "26",
+        0
+      ],
+      "conditioning": [
+        "23",
+        0
+      ]
+    }
+  },
+  "30": {
+    "class_type": "GestureQwenTurboSigmas",
+    "inputs": {
+      "latent": [
+        "23",
+        2
+      ]
+    }
+  }
+}

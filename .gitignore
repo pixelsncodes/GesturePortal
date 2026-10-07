@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+models/
+.tools/
+captures/
+controls.json
+controls.json.tmp
+.comfy-*/
+.comfy-*.log
+comfy_paths.yaml
+artifacts/
+output/
+ref/
+.publish/

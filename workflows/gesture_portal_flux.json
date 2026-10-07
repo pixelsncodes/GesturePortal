@@ -1,0 +1,787 @@
+{
+  "last_node_id": 33,
+  "last_link_id": 17,
+  "nodes": [
+    {
+      "id": 4,
+      "type": "GesturePortalInput",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9,
+            12
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GesturePortalInput"
+      },
+      "widgets_values": [
+        "live-frame-supplied-by-portal-client"
+      ],
+      "widgets_values_named": {
+        "frame_id": "live-frame-supplied-by-portal-client"
+      }
+    },
+    {
+      "id": 20,
+      "type": "UNETLoader",
+      "pos": [
+        420,
+        40
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            16
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": [
+        "flux-2-klein-4b.safetensors",
+        "default"
+      ],
+      "widgets_values_named": {
+        "unet_name": "flux-2-klein-4b.safetensors",
+        "weight_dtype": "default"
+      }
+    },
+    {
+      "id": 21,
+      "type": "CLIPLoader",
+      "pos": [
+        800,
+        40
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            11
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "qwen_3_4b_fp4_flux2.safetensors",
+        "flux2",
+        "default"
+      ],
+      "widgets_values_named": {
+        "clip_name": "qwen_3_4b_fp4_flux2.safetensors",
+        "type": "flux2",
+        "device": "default"
+      }
+    },
+    {
+      "id": 22,
+      "type": "VAELoader",
+      "pos": [
+        1180,
+        40
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            7,
+            13
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": [
+        "flux2-vae.safetensors"
+      ],
+      "widgets_values_named": {
+        "vae_name": "flux2-vae.safetensors"
+      }
+    },
+    {
+      "id": 28,
+      "type": "RandomNoise",
+      "pos": [
+        40,
+        340
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            1
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "widgets_values": [
+        42,
+        "fixed"
+      ],
+      "widgets_values_named": {
+        "noise_seed": 42
+      }
+    },
+    {
+      "id": 29,
+      "type": "KSamplerSelect",
+      "pos": [
+        420,
+        340
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            3
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "widgets_values": [
+        "euler"
+      ],
+      "widgets_values_named": {
+        "sampler_name": "euler"
+      }
+    },
+    {
+      "id": 31,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        800,
+        340
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 1
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 2
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 3
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 4
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 5
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            6
+          ]
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": []
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 32,
+      "type": "VAEDecode",
+      "pos": [
+        1180,
+        340
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 6
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            8
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 33,
+      "type": "GestureEditBlend",
+      "pos": [
+        40,
+        640
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 8
+        },
+        {
+          "name": "source",
+          "type": "IMAGE",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            10
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GestureEditBlend"
+      },
+      "widgets_values": [
+        1.0
+      ],
+      "widgets_values_named": {
+        "strength": 1.0
+      }
+    },
+    {
+      "id": 8,
+      "type": "GesturePortalOutput",
+      "pos": [
+        420,
+        640
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 10
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "GesturePortalOutput"
+      },
+      "widgets_values": [
+        "live-frame-supplied-by-portal-client"
+      ],
+      "widgets_values_named": {
+        "frame_id": "live-frame-supplied-by-portal-client"
+      }
+    },
+    {
+      "id": 23,
+      "type": "CLIPTextEncode",
+      "pos": [
+        800,
+        640
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            14
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style."
+      ],
+      "widgets_values_named": {
+        "text": "Redraw this entire image as a Japanese anime film frame. Use crisp ink outlines, simple flat color fills and two-tone cel shading, with a hand-drawn 2D animation aesthetic. Preserve the same recognizable person, original skin color, age, face proportions, natural eye size, hair, expression, clothing, hand positions and exact room composition and framing. Change only the drawing style."
+      }
+    },
+    {
+      "id": 24,
+      "type": "VAEEncode",
+      "pos": [
+        1180,
+        640
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 12
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 13
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            15
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 25,
+      "type": "ReferenceLatent",
+      "pos": [
+        40,
+        940
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            17
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ReferenceLatent"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 26,
+      "type": "EmptyFlux2LatentImage",
+      "pos": [
+        420,
+        940
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            5
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyFlux2LatentImage"
+      },
+      "widgets_values": [
+        640,
+        384,
+        1
+      ],
+      "widgets_values_named": {
+        "width": 640,
+        "height": 384,
+        "batch_size": 1
+      }
+    },
+    {
+      "id": 27,
+      "type": "BasicGuider",
+      "pos": [
+        800,
+        940
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 16
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            2
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider"
+      },
+      "widgets_values": [],
+      "widgets_values_named": {}
+    },
+    {
+      "id": 30,
+      "type": "Flux2Scheduler",
+      "pos": [
+        1180,
+        940
+      ],
+      "size": [
+        320,
+        210
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            4
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Flux2Scheduler"
+      },
+      "widgets_values": [
+        4,
+        640,
+        384
+      ],
+      "widgets_values_named": {
+        "steps": 4,
+        "width": 640,
+        "height": 384
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      28,
+      0,
+      31,
+      0,
+      "NOISE"
+    ],
+    [
+      2,
+      27,
+      0,
+      31,
+      1,
+      "GUIDER"
+    ],
+    [
+      3,
+      29,
+      0,
+      31,
+      2,
+      "SAMPLER"
+    ],
+    [
+      4,
+      30,
+      0,
+      31,
+      3,
+      "SIGMAS"
+    ],
+    [
+      5,
+      26,
+      0,
+      31,
+      4,
+      "LATENT"
+    ],
+    [
+      6,
+      31,
+      0,
+      32,
+      0,
+      "LATENT"
+    ],
+    [
+      7,
+      22,
+      0,
+      32,
+      1,
+      "VAE"
+    ],
+    [
+      8,
+      32,
+      0,
+      33,
+      0,
+      "IMAGE"
+    ],
+    [
+      9,
+      4,
+      0,
+      33,
+      1,
+      "IMAGE"
+    ],
+    [
+      10,
+      33,
+      0,
+      8,
+      0,
+      "IMAGE"
+    ],
+    [
+      11,
+      21,
+      0,
+      23,
+      0,
+      "CLIP"
+    ],
+    [
+      12,
+      4,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ],
+    [
+      13,
+      22,
+      0,
+      24,
+      1,
+      "VAE"
+    ],
+    [
+      14,
+      23,
+      0,
+      25,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      15,
+      24,
+      0,
+      25,
+      1,
+      "LATENT"
+    ],
+    [
+      16,
+      20,
+      0,
+      27,
+      0,
+      "MODEL"
+    ],
+    [
+      17,
+      25,
+      0,
+      27,
+      1,
+      "CONDITIONING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.65,
+      "offset": [
+        30,
+        30
+      ]
+    }
+  },
+  "version": 0.4
+}
