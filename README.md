@@ -12,9 +12,9 @@ The full camera image is converted first. Your gesture controls the reveal mask,
 
 ## See it working
 
-![Painted 3D style and gesture reveal in the updated GesturePortal](docs/assets/style-painted_3d.gif)
+![Actual GesturePortal recording: hands reveal an anime version of the camera feed](docs/assets/demo-portal.gif)
 
-*Actual local FLUX output from the updated app, using the creator's camera recording as replay input. The GIF shows full-style output followed by the hand-controlled reveal. Playback is 10 fps; AI updates are slower and are not accelerated.*
+*Actual prototype output, cropped from the supplied recording. The GIF is sampled at 6 fps and retains the original timing; this is not the AI generation rate.*
 
 [Watch the updated desktop recording](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-desktop.mp4) · [Widget video](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-widget.mp4) · [Settings video](https://github.com/pixelsncodes/GesturePortal/blob/main/docs/assets/GesturePortal-settings.mp4) · [All nine GIFs and screenshots](docs/gallery.md)
 
